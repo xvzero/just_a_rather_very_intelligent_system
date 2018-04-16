@@ -1,0 +1,25 @@
+{
+  "name": "just_a_rather_very_intelligent_system",
+  "version": "1.0.0",
+  "description": "### Background and Overview",
+  "main": "bundle.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "browser-sync start --directory --server --files \"*.css, *.html, *.js\""
+
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xvzero/just_a_rather_very_intelligent_system.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "browser-sync": "^2.12.5 <2.23.2"
+  },
+  "bugs": {
+    "url": "https://github.com/xvzero/just_a_rather_very_intelligent_system/issues"
+  },
+  "homepage": "https://github.com/xvzero/just_a_rather_very_intelligent_system#readme"
+}
