@@ -4,8 +4,6 @@
 
 Just A Rather Very Intelligent System (J.A.R.V.I.S) is a personal assistant that will search and play a song that the user requests through voice activation.  
 
-Users can tell JARVIS to play/pause a song
-
 ### Functionality and MVP
 
 With JARVIS, users will be able to (with voice commands):
@@ -22,7 +20,7 @@ Bonus?:
 
 ### Wireframes
 
-This app will be a single page web application that can be run in the background.  There will only be a small GUI so that users can minimize the window and place in the corner of their screen to see what's currently playing.  There will be an option to toggle on/off the audio visualization so that the web app eat up the computer's processor.
+This app will be a single page web application that can be run in the background.  There will only be a small GUI so that users can minimize the window and place in the corner of their screen to see what's currently playing.  There will be an option to toggle on/off the audio visualization so that the web app won't eat up the computer's processor.
 
 ![app wireframe](https://i.imgur.com/O9Kn0vV.png)
 
