@@ -1,25 +1,14 @@
-// webpack.config.js
-var path = require('path');
+const path = require('path');
+const webpack = require('webpack');
 
 module.exports = {
-  entry: './js/jarvis.js',
+  entry: path.join(__dirname, './public/js/index.js'),
   output: {
-    filename: './js/bundle.js',
+    filename: 'bundle.js',
+    path: path.join(__dirname, './public')
   },
-  module: {
-    loaders: [
-      {
-        test: [/\.jsx?$/],
-        exclude: /(node_modules)/,
-        loader: 'babel-loader',
-        query: {
-          presets: ['env', 'react']
-        }
-      }
-    ]
-  },
-  devtool: 'source-map',
-  resolve: {
-    extensions: ['.js', '*']
-  }
+  plugins: [
+    new webpack.ProgressPlugin()
+  ],
+  devtool: 'source-map'
 };

@@ -1,25 +1,26 @@
 {
-  "name": "just_a_rather_very_intelligent_system",
+  "name": "test",
   "version": "1.0.0",
-  "description": "### Background and Overview",
-  "main": "bundle.js",
+  "description": "cors test",
+  "main": "app.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "engines": {
+    "node": ">=8.1.0"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "browser-sync start --directory --server --files \"*.css, *.html, *.js\""
-
+    "build": "webpack --watch",
+    "start": "node app.js",
+    "start:debug": "DEBUG=* node app.js"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/xvzero/just_a_rather_very_intelligent_system.git"
+  "dependencies": {
+    "express": "^4.15.3",
+    "node-fetch": "^1.7.3",
+    "soundcloud-widget": "^0.2.1",
+    "webpack": "^3.4.1"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "devDependencies": {
-    "browser-sync": "^2.12.5 <2.23.2"
-  },
-  "bugs": {
-    "url": "https://github.com/xvzero/just_a_rather_very_intelligent_system/issues"
-  },
-  "homepage": "https://github.com/xvzero/just_a_rather_very_intelligent_system#readme"
+    "nodemon": "^1.11.0"
+  }
 }
