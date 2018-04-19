@@ -6,25 +6,48 @@
 
   <script type="text/javascript" src="bundle.js"></script>
   <link rel="stylesheet" href="/css/jarvis.css">
+  <link rel="stylesheet" href="/css/arc_reactor.css">
 </head>
 <body>
+  <aside class="commands">
+  </aside>
+  <main>
+    <header class="website-header">
+      <h1 class="website-title">J.A.R.V.I.S.</h1>
+      <h3 class="website-description">A Voice Activated Soundcloud Player</h3>
+    </header>
 
-  <div class="words" contenteditable>
-  </div>
+    <div class="words"><p class="input"></p></div>
 
-  <div class="search-container">
-    <input type=text placeholder="stuff"/>
-  </div>
+    <div class="audio-player-container">
+      <iframe class="audio-player"
+        width="500"
+        height="130"
+        scrolling="no"
+        frameborder="no"
+        allow="autoplay" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/304744944&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true">
+      </iframe>
+      <div class="search-container"></div>
+    </div>
 
 
-  <div class="audio-player-container">
-    <iframe class="audio-player"
-    width="500"
-    height="130"
-    scrolling="no"
-    frameborder="no"
-    allow="autoplay" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/304744944&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true"></iframe>
-  </div>
-
+    <div class="reactor-container">
+      <div class="reactor-container-inner circle abs-center"></div>
+      <div class="tunnel circle abs-center"></div>
+      <div class="core-wrapper circle abs-center"></div>
+      <div class="core-outer circle abs-center"></div>
+      <div class="core-inner circle abs-center"></div>
+      <div class="coil-container">
+        <div class="coil coil-1"></div>
+        <div class="coil coil-2"></div>
+        <div class="coil coil-3"></div>
+        <div class="coil coil-4"></div>
+        <div class="coil coil-5"></div>
+        <div class="coil coil-6"></div>
+        <div class="coil coil-7"></div>
+        <div class="coil coil-8"></div>
+      </div>
+    </div>
+  <main>
 </body>
 </html>
