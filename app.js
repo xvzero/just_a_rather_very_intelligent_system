@@ -9,11 +9,7 @@ app.use(express.static('public'));
 
 
 app.get('/', (req, res) => {
- res.sendFile(path.join(__dirname, './public/index.html'));
-});
-
-app.get('/search', (req, res) => {
- res.send('asefasef');
+ res.sendFile(path.join(__dirname, './index.html'));
 });
 
 app.listen(PORT, () => {
