@@ -5,13 +5,30 @@
   <title>JARVIS</title>
 
   <script type="text/javascript" src="bundle.js"></script>
+
+  <link rel="stylesheet" href="/css/reset.css">
   <link rel="stylesheet" href="/css/jarvis.css">
   <link rel="stylesheet" href="/css/arc_reactor.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 <body>
   <aside class="commands">
+    <header class="aside-header">Simply say "JARVIS"
+      followed by <br> any of the following commands</header>
+    <ul>
+      <li>Search for (song name)</li>
+      <li>Play (song name)</li>
+      <li>Pause/unpause</li>
+      <li>Set volume (0-100)</li>
+      <li>Max volume</li>
+      <li>Mute/unmute</li>
+      <li>Skip (number) seconds</li>
+      <li>Skip to the end</li>
+      <li>Rewind (number) seconds</li>
+      <li>Go back to the beginning</li>
+    </ul>
   </aside>
-  <main>
+  <div>
     <header class="website-header">
       <h1 class="website-title">J.A.R.V.I.S.</h1>
       <h3 class="website-description">A Voice Activated Soundcloud Player</h3>
@@ -20,13 +37,24 @@
     <div class="words"><p class="input"></p></div>
 
     <div class="audio-player-container">
-      <iframe class="audio-player"
+      <iframe class="soundcloud-player"
         width="500"
         height="130"
         scrolling="no"
         frameborder="no"
         allow="autoplay" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/304744944&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true">
       </iframe>
+      <!-- <iframe class="youtube-player"
+        width="500"
+        height="130"
+        frameborder="0"
+        allow="autoplay"
+        src="https://www.youtube.com/embed/8ga_tSyiRvQ"
+        allowfullscreen>
+      </iframe> -->
+      <label class="search-results-text">Show related search results:
+        <input type="checkbox" class="search-checkbox"></input>
+      </label>
       <div class="search-container"></div>
     </div>
 
@@ -48,6 +76,16 @@
         <div class="coil coil-8"></div>
       </div>
     </div>
-  <main>
+  </div>
+  <div class="links">
+    <a href="https://github.com/xvzero/just_a_rather_very_intelligent_system">
+      <span><i class="fa fa-github"></i></span>
+    </a>
+
+    <a href="https://www.linkedin.com/in/ayyitsdrayy/">
+      <span><i class="fa fa-linkedin"></i></span>
+    </a>
+  </div>
+
 </body>
 </html>

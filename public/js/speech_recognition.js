@@ -23,15 +23,19 @@ recognition.addEventListener('result', e => {
     if (e.results[0].isFinal) {
 
       if ((/(jarvis)(?!.*((don\'t)|(stop))).*(search for)/i).test(transcript)) {
-        playSong(transcript.match(/(play)(.*)/i)[2]);
+        searchSoundCloud(transcript.match(/(for)(.*)/i)[2]);
       }
 
       if ((/(jarvis)(?!.*((don\'t)|(stop))).*(play)/i).test(transcript)) {
         playSong(transcript.match(/(play)(.*)/i)[2]);
       }
 
-      if ((/(jarvis)(?!.*((don\'t)|(stop))).*(pause)/i).test(transcript)) {
+      if ((/(jarvis)(?!.*((don\'t)|(stop)))(?!.*unmute).*(pause)/i).test(transcript)) {
         pauseSong();
+      }
+
+      if ((/(jarvis)(?!.*((don\'t)|(stop))).*(unpause)/i).test(transcript)) {
+        unpauseSong();
       }
 
       if ((/(jarvis)(?!.*(don\'t))(?!.*unmute).*(mute)/i).test(transcript)) {
@@ -42,8 +46,20 @@ recognition.addEventListener('result', e => {
         unmuteVolume();
       }
 
+      if ((/(jarvis)(?!.*(don\'t)).*(set).*(volume).*(\d+)/i).test(transcript)) {
+        setVolume(transcript.match(/\d+/)[0]);
+      }
+
+      if ((/(jarvis)(?!.*(don\'t)).*(max)/i).test(transcript)) {
+        setVolume(100);
+      }
+
       if ((/(jarvis)(?!.*(don\'t)).*(skip).*(\d+).(seconds)/i).test(transcript)) {
         seekSong(transcript.match(/\d+/)[0]);
+      }
+
+      if ((/(jarvis)(?!.*(don\'t)).*(rewind).*(\d+).(seconds)/i).test(transcript)) {
+        seekSong(-1 * transcript.match(/\d+/)[0]);
       }
 
       if ((/((jarvis)(?!.*(don\'t)).*(skip|(go to)).*(start|beginning))|(jarvis).*(replay)/i).test(transcript)) {
@@ -84,8 +100,20 @@ SC.initialize({
   client_id: clientId
 });
 
-let widget = new SC.Widget(document.querySelector('.audio-player'));
+let widget = new SC.Widget(document.querySelector('.soundcloud-player'));
 let currentVolume = 100;
+let options = {
+  auto_play: true,
+  buying: false,
+  liking: true,
+  download: true,
+  sharing: true,
+  show_artwork: true,
+  show_comments: false,
+  show_playcount: true,
+  show_user: true,
+  start_track: 0
+};
 
 function searchSoundCloud(userInput) {
   SC.get('/tracks', {
@@ -112,21 +140,15 @@ function playSong(userInput) {
     q: userInput, limit:10
   }).then(function(tracks) {
     if (tracks.length > 0) {
-      let options = {
-        auto_play: true,
-        buying: false,
-        liking: true,
-        download: true,
-        sharing: true,
-        show_artwork: true,
-        show_comments: false,
-        show_playcount: true,
-        show_user: true,
-        start_track: 0
-      };
-
       widget.load(tracks[0].uri, options);
-      showTracks(tracks.slice(1));
+
+      if (document.querySelector('.search-checkbox').checked)
+        showTracks(tracks.slice(1));
+      else {
+        while (searchContainer.hasChildNodes()) {
+          searchContainer.removeChild(searchContainer.lastChild);
+        }
+      }
     }
   });
 }
@@ -134,6 +156,12 @@ function playSong(userInput) {
 function pauseSong() {
   widget.isPaused(paused => {
     if (!paused) widget.pause();
+  });
+}
+
+function unpauseSong() {
+  widget.isPaused(paused => {
+    if (paused) widget.play();
   });
 }
 
@@ -148,20 +176,24 @@ function unmuteVolume() {
   widget.setVolume(currentVolume);
 }
 
+function setVolume(volume) {
+  currentVolume = volume;
+  widget.setVolume(currentVolume);
+}
+
 function seekSong(time) {
   if (time === 'begin') {
     widget.seekTo(0);
   } else if (time === 'end') {
     widget.getDuration(duration => widget.seekTo(duration));
   } else {
-    let currentTime;
     widget.getPosition(position => {
-      currentTime = position;
+      let currentTime = position + (time * 1000);
+      widget.getDuration(duration => {
+        if (currentTime >= 0 && currentTime <= duration)
+          widget.seekTo(currentTime);
+      });
     });
-    currentTime += (time * 1000);
-
-    if (currentTime >= 0 && currentTime <= widget.getDuration(duration => widget.seekTo(duration)))
-      widget.seekTo(currentTime);
   }
 }
 
@@ -173,12 +205,10 @@ function showTracks(tracks){
     let trackContainer = document.createElement('div');
     let trackTitle = document.createElement('header');
     let trackImage = document.createElement('img');
-    let trackLink = document.createElement('a');
 
     trackContainer.className = 'track-container';
     trackTitle.className = 'track-title';
     trackImage.className = 'track-image';
-    trackLink.className = 'track-link';
 
     if(tracks[i].artwork_url)
       trackImage.setAttribute('src', tracks[i].artwork_url);
@@ -191,10 +221,9 @@ function showTracks(tracks){
     trackImage.setAttribute('width', 70);
     trackImage.setAttribute('height', 70);
     trackImage.trackInfo = tracks[i];
-    trackLink.setAttribute('href', '#');
-    trackLink.appendChild(trackImage);
-    trackContainer.appendChild(trackLink);
+    trackContainer.appendChild(trackImage);
     trackContainer.appendChild(trackTitle);
+    trackContainer.onclick = () => widget.load(tracks[i].uri, options);
     searchContainer.appendChild(trackContainer);
   }
 }
