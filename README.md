@@ -1,28 +1,33 @@
-# Just A Rather Very Intelligent System
+# README
 
-### Background and Overview
+### Introduction
 
-Just A Rather Very Intelligent System (J.A.R.V.I.S) is a personal assistant that will search and play a song that the user requests through voice activation.  
+Just.A.Rather.Very.Intelligent.System, or Jarvis, is a voice activated personal assistant that plays music using the SoundCloud API.
 
-### Functionality and MVP
+Jarvis can be tested out [here](https://xvzero.github.io/just_a_rather_very_intelligent_system/)
 
-With JARVIS, users will be able to (with voice commands):
-- [ ] search for a song
-- [ ] play/pause a song
+### Technologies
 
-In addition, this project will include:
-- [ ] a GUI for users to manually search for songs
-- [ ] a GUI for the audio player
+- [Mozilla Speech Recognition API](https://developer.mozilla.org/en-US/docs/Web/API/SpeechRecognition)
+- [Soundcloud Widget API](https://developers.soundcloud.com/docs/api/html5-widget)
 
+Development:
 
-Bonus?:
-- [ ] a visualization of the song playing
+- Node.js as server to allow microphone usage
 
-### Wireframes
+### Functionality
 
-This app will be a single page web application that can be run in the background.  There will only be a small GUI so that users can minimize the window and place in the corner of their screen to see what's currently playing.  There will be an option to toggle on/off the audio visualization so that the web app won't eat up the computer's processor.
+Users can do the following with voice commands:
 
-![app wireframe](https://i.imgur.com/O9Kn0vV.png)
+- Search through SoundCloud's song database
+- Play/Pause a song
+- Set/Mute the volume
+- Skip a number of seconds in the song
+- Rewind a number of seconds in the song
+- Go to the beginning/end of the song
+
+![ui](https://media.giphy.com/media/3gK8oJjmnfVk1l2ybP/giphy.gif)
+
 
 ### Architecture and Technologies
 
@@ -31,30 +36,42 @@ This app will be a single page web application that can be run in the background
 
 Javascript files:
 
+`index.js`: entry file to bundle all javascript files
+
 `speech_recognition.js`: script to handle speech recognition and to update DOM elements
 
-`audio_player.js`: script to handle audio bar buttons
+Development files:
 
-Bonus?:
+`app.js`: to create backend server to allow microphone usage
 
-`audio_visualizer.js`: script to handle audio visualization
+### Handling User Input
 
-### Implementation Timeline
+Once the user says something, it is rendered through the Speech Recognition API and becomes a readable string.  The string is then searched for specific keywords and phrases through RegEx in order to determine the next course of action.
 
-**Over the weekend:**
-- [x] Completed speech recognition tutorial
-- [x] Research libraries and technologies required to build app
+```
+if ((/(jarvis)(?!.*((don\'t)|(stop))).*(search for)/i).test(transcript)) {
+  searchSoundCloud(transcript.match(/(for)(.*)/i)[2]);
+}
 
-**Day 1:** Setup all Node modules. Create `webpack.config.js` as well as `package.json`. Create skeletons for all scripts.
+if ((/(jarvis)(?!.*((don\'t)|(stop))).*(play)/i).test(transcript)) {
+  playSong(transcript.match(/(play)(.*)/i)[2]);
+}
 
-**Day 2-3:** Create logic for handling speech recognition. Learn how to incorporate it into searching for songs from spotify/soundcloud/youtube
+if ((/(jarvis)(?!.*((don\'t)|(stop)))(?!.*unmute).*(pause)/i).test(transcript)) {
+  pauseSong();
+}
+```
 
-**Day 4:** Create CSS
+### Technical Challenges
 
-### Bonus Features:
+I am not really sure how to make an AI with speech recognition so I had to settle with hardcoding regular expressions. I also have no clue how I would go about building my own voice recognition software so I have to settle for using an API.
 
-- [ ] Audio visualization presets
-- [ ] Drag and drop audio files to play
-- [ ] Personal Playlist
-- [ ] Speech Response
-- [ ] Add more functionality outside of songs
+### Future Features:
+
+I hope to eventually add these implementations 
+
+- Audio visualization presets
+- Drag and drop audio files to play
+- Personal Playlist
+- Speech Response
+- Add more functionality outside of songs

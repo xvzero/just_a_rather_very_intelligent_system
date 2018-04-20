@@ -60,321 +60,11 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 10);
+/******/ 	return __webpack_require__(__webpack_require__.s = 2);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var bind = __webpack_require__(5);
-var isBuffer = __webpack_require__(19);
-
-/*global toString:true*/
-
-// utils is a library of generic helper functions non-specific to axios
-
-var toString = Object.prototype.toString;
-
-/**
- * Determine if a value is an Array
- *
- * @param {Object} val The value to test
- * @returns {boolean} True if value is an Array, otherwise false
- */
-function isArray(val) {
-  return toString.call(val) === '[object Array]';
-}
-
-/**
- * Determine if a value is an ArrayBuffer
- *
- * @param {Object} val The value to test
- * @returns {boolean} True if value is an ArrayBuffer, otherwise false
- */
-function isArrayBuffer(val) {
-  return toString.call(val) === '[object ArrayBuffer]';
-}
-
-/**
- * Determine if a value is a FormData
- *
- * @param {Object} val The value to test
- * @returns {boolean} True if value is an FormData, otherwise false
- */
-function isFormData(val) {
-  return (typeof FormData !== 'undefined') && (val instanceof FormData);
-}
-
-/**
- * Determine if a value is a view on an ArrayBuffer
- *
- * @param {Object} val The value to test
- * @returns {boolean} True if value is a view on an ArrayBuffer, otherwise false
- */
-function isArrayBufferView(val) {
-  var result;
-  if ((typeof ArrayBuffer !== 'undefined') && (ArrayBuffer.isView)) {
-    result = ArrayBuffer.isView(val);
-  } else {
-    result = (val) && (val.buffer) && (val.buffer instanceof ArrayBuffer);
-  }
-  return result;
-}
-
-/**
- * Determine if a value is a String
- *
- * @param {Object} val The value to test
- * @returns {boolean} True if value is a String, otherwise false
- */
-function isString(val) {
-  return typeof val === 'string';
-}
-
-/**
- * Determine if a value is a Number
- *
- * @param {Object} val The value to test
- * @returns {boolean} True if value is a Number, otherwise false
- */
-function isNumber(val) {
-  return typeof val === 'number';
-}
-
-/**
- * Determine if a value is undefined
- *
- * @param {Object} val The value to test
- * @returns {boolean} True if the value is undefined, otherwise false
- */
-function isUndefined(val) {
-  return typeof val === 'undefined';
-}
-
-/**
- * Determine if a value is an Object
- *
- * @param {Object} val The value to test
- * @returns {boolean} True if value is an Object, otherwise false
- */
-function isObject(val) {
-  return val !== null && typeof val === 'object';
-}
-
-/**
- * Determine if a value is a Date
- *
- * @param {Object} val The value to test
- * @returns {boolean} True if value is a Date, otherwise false
- */
-function isDate(val) {
-  return toString.call(val) === '[object Date]';
-}
-
-/**
- * Determine if a value is a File
- *
- * @param {Object} val The value to test
- * @returns {boolean} True if value is a File, otherwise false
- */
-function isFile(val) {
-  return toString.call(val) === '[object File]';
-}
-
-/**
- * Determine if a value is a Blob
- *
- * @param {Object} val The value to test
- * @returns {boolean} True if value is a Blob, otherwise false
- */
-function isBlob(val) {
-  return toString.call(val) === '[object Blob]';
-}
-
-/**
- * Determine if a value is a Function
- *
- * @param {Object} val The value to test
- * @returns {boolean} True if value is a Function, otherwise false
- */
-function isFunction(val) {
-  return toString.call(val) === '[object Function]';
-}
-
-/**
- * Determine if a value is a Stream
- *
- * @param {Object} val The value to test
- * @returns {boolean} True if value is a Stream, otherwise false
- */
-function isStream(val) {
-  return isObject(val) && isFunction(val.pipe);
-}
-
-/**
- * Determine if a value is a URLSearchParams object
- *
- * @param {Object} val The value to test
- * @returns {boolean} True if value is a URLSearchParams object, otherwise false
- */
-function isURLSearchParams(val) {
-  return typeof URLSearchParams !== 'undefined' && val instanceof URLSearchParams;
-}
-
-/**
- * Trim excess whitespace off the beginning and end of a string
- *
- * @param {String} str The String to trim
- * @returns {String} The String freed of excess whitespace
- */
-function trim(str) {
-  return str.replace(/^\s*/, '').replace(/\s*$/, '');
-}
-
-/**
- * Determine if we're running in a standard browser environment
- *
- * This allows axios to run in a web worker, and react-native.
- * Both environments support XMLHttpRequest, but not fully standard globals.
- *
- * web workers:
- *  typeof window -> undefined
- *  typeof document -> undefined
- *
- * react-native:
- *  navigator.product -> 'ReactNative'
- */
-function isStandardBrowserEnv() {
-  if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
-    return false;
-  }
-  return (
-    typeof window !== 'undefined' &&
-    typeof document !== 'undefined'
-  );
-}
-
-/**
- * Iterate over an Array or an Object invoking a function for each item.
- *
- * If `obj` is an Array callback will be called passing
- * the value, index, and complete array for each item.
- *
- * If 'obj' is an Object callback will be called passing
- * the value, key, and complete object for each property.
- *
- * @param {Object|Array} obj The object to iterate
- * @param {Function} fn The callback to invoke for each item
- */
-function forEach(obj, fn) {
-  // Don't bother if no value provided
-  if (obj === null || typeof obj === 'undefined') {
-    return;
-  }
-
-  // Force an array if not already something iterable
-  if (typeof obj !== 'object') {
-    /*eslint no-param-reassign:0*/
-    obj = [obj];
-  }
-
-  if (isArray(obj)) {
-    // Iterate over array values
-    for (var i = 0, l = obj.length; i < l; i++) {
-      fn.call(null, obj[i], i, obj);
-    }
-  } else {
-    // Iterate over object keys
-    for (var key in obj) {
-      if (Object.prototype.hasOwnProperty.call(obj, key)) {
-        fn.call(null, obj[key], key, obj);
-      }
-    }
-  }
-}
-
-/**
- * Accepts varargs expecting each argument to be an object, then
- * immutably merges the properties of each object and returns result.
- *
- * When multiple objects contain the same key the later object in
- * the arguments list will take precedence.
- *
- * Example:
- *
- * ```js
- * var result = merge({foo: 123}, {foo: 456});
- * console.log(result.foo); // outputs 456
- * ```
- *
- * @param {Object} obj1 Object to merge
- * @returns {Object} Result of all merge properties
- */
-function merge(/* obj1, obj2, obj3, ... */) {
-  var result = {};
-  function assignValue(val, key) {
-    if (typeof result[key] === 'object' && typeof val === 'object') {
-      result[key] = merge(result[key], val);
-    } else {
-      result[key] = val;
-    }
-  }
-
-  for (var i = 0, l = arguments.length; i < l; i++) {
-    forEach(arguments[i], assignValue);
-  }
-  return result;
-}
-
-/**
- * Extends object a by mutably adding to it the properties of object b.
- *
- * @param {Object} a The object to be extended
- * @param {Object} b The object to copy properties from
- * @param {Object} thisArg The object to bind function to
- * @return {Object} The resulting value of object a
- */
-function extend(a, b, thisArg) {
-  forEach(b, function assignValue(val, key) {
-    if (thisArg && typeof val === 'function') {
-      a[key] = bind(val, thisArg);
-    } else {
-      a[key] = val;
-    }
-  });
-  return a;
-}
-
-module.exports = {
-  isArray: isArray,
-  isArrayBuffer: isArrayBuffer,
-  isBuffer: isBuffer,
-  isFormData: isFormData,
-  isArrayBufferView: isArrayBufferView,
-  isString: isString,
-  isNumber: isNumber,
-  isObject: isObject,
-  isUndefined: isUndefined,
-  isDate: isDate,
-  isFile: isFile,
-  isBlob: isBlob,
-  isFunction: isFunction,
-  isStream: isStream,
-  isURLSearchParams: isURLSearchParams,
-  isStandardBrowserEnv: isStandardBrowserEnv,
-  forEach: forEach,
-  merge: merge,
-  extend: extend,
-  trim: trim
-};
-
-
-/***/ }),
-/* 1 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {var scope = this;
@@ -428,7 +118,7 @@ exports._unrefActive = exports.active = function(item) {
 };
 
 // setimmediate attaches itself to the global object
-__webpack_require__(13);
+__webpack_require__(5);
 // On some exotic environments, it's not clear which object `setimmeidate` was
 // able to install onto.  Search each possibility in the same order as the
 // `setimmediate` library.
@@ -439,10 +129,10 @@ exports.clearImmediate = (typeof self !== "undefined" && self.clearImmediate) ||
                          (typeof global !== "undefined" && global.clearImmediate) ||
                          (this && this.clearImmediate);
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1)))
 
 /***/ }),
-/* 2 */
+/* 1 */
 /***/ (function(module, exports) {
 
 var g;
@@ -469,579 +159,16 @@ module.exports = g;
 
 
 /***/ }),
-/* 3 */
-/***/ (function(module, exports) {
-
-// shim for using process in browser
-var process = module.exports = {};
-
-// cached from whatever global is present so that test runners that stub it
-// don't break things.  But we need to wrap it in a try catch in case it is
-// wrapped in strict mode code which doesn't define any globals.  It's inside a
-// function because try/catches deoptimize in certain engines.
-
-var cachedSetTimeout;
-var cachedClearTimeout;
-
-function defaultSetTimout() {
-    throw new Error('setTimeout has not been defined');
-}
-function defaultClearTimeout () {
-    throw new Error('clearTimeout has not been defined');
-}
-(function () {
-    try {
-        if (typeof setTimeout === 'function') {
-            cachedSetTimeout = setTimeout;
-        } else {
-            cachedSetTimeout = defaultSetTimout;
-        }
-    } catch (e) {
-        cachedSetTimeout = defaultSetTimout;
-    }
-    try {
-        if (typeof clearTimeout === 'function') {
-            cachedClearTimeout = clearTimeout;
-        } else {
-            cachedClearTimeout = defaultClearTimeout;
-        }
-    } catch (e) {
-        cachedClearTimeout = defaultClearTimeout;
-    }
-} ())
-function runTimeout(fun) {
-    if (cachedSetTimeout === setTimeout) {
-        //normal enviroments in sane situations
-        return setTimeout(fun, 0);
-    }
-    // if setTimeout wasn't available but was latter defined
-    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
-        cachedSetTimeout = setTimeout;
-        return setTimeout(fun, 0);
-    }
-    try {
-        // when when somebody has screwed with setTimeout but no I.E. maddness
-        return cachedSetTimeout(fun, 0);
-    } catch(e){
-        try {
-            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
-            return cachedSetTimeout.call(null, fun, 0);
-        } catch(e){
-            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
-            return cachedSetTimeout.call(this, fun, 0);
-        }
-    }
-
-
-}
-function runClearTimeout(marker) {
-    if (cachedClearTimeout === clearTimeout) {
-        //normal enviroments in sane situations
-        return clearTimeout(marker);
-    }
-    // if clearTimeout wasn't available but was latter defined
-    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
-        cachedClearTimeout = clearTimeout;
-        return clearTimeout(marker);
-    }
-    try {
-        // when when somebody has screwed with setTimeout but no I.E. maddness
-        return cachedClearTimeout(marker);
-    } catch (e){
-        try {
-            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
-            return cachedClearTimeout.call(null, marker);
-        } catch (e){
-            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
-            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
-            return cachedClearTimeout.call(this, marker);
-        }
-    }
-
-
-
-}
-var queue = [];
-var draining = false;
-var currentQueue;
-var queueIndex = -1;
-
-function cleanUpNextTick() {
-    if (!draining || !currentQueue) {
-        return;
-    }
-    draining = false;
-    if (currentQueue.length) {
-        queue = currentQueue.concat(queue);
-    } else {
-        queueIndex = -1;
-    }
-    if (queue.length) {
-        drainQueue();
-    }
-}
-
-function drainQueue() {
-    if (draining) {
-        return;
-    }
-    var timeout = runTimeout(cleanUpNextTick);
-    draining = true;
-
-    var len = queue.length;
-    while(len) {
-        currentQueue = queue;
-        queue = [];
-        while (++queueIndex < len) {
-            if (currentQueue) {
-                currentQueue[queueIndex].run();
-            }
-        }
-        queueIndex = -1;
-        len = queue.length;
-    }
-    currentQueue = null;
-    draining = false;
-    runClearTimeout(timeout);
-}
-
-process.nextTick = function (fun) {
-    var args = new Array(arguments.length - 1);
-    if (arguments.length > 1) {
-        for (var i = 1; i < arguments.length; i++) {
-            args[i - 1] = arguments[i];
-        }
-    }
-    queue.push(new Item(fun, args));
-    if (queue.length === 1 && !draining) {
-        runTimeout(drainQueue);
-    }
-};
-
-// v8 likes predictible objects
-function Item(fun, array) {
-    this.fun = fun;
-    this.array = array;
-}
-Item.prototype.run = function () {
-    this.fun.apply(null, this.array);
-};
-process.title = 'browser';
-process.browser = true;
-process.env = {};
-process.argv = [];
-process.version = ''; // empty string to avoid regexp issues
-process.versions = {};
-
-function noop() {}
-
-process.on = noop;
-process.addListener = noop;
-process.once = noop;
-process.off = noop;
-process.removeListener = noop;
-process.removeAllListeners = noop;
-process.emit = noop;
-process.prependListener = noop;
-process.prependOnceListener = noop;
-
-process.listeners = function (name) { return [] }
-
-process.binding = function (name) {
-    throw new Error('process.binding is not supported');
-};
-
-process.cwd = function () { return '/' };
-process.chdir = function (dir) {
-    throw new Error('process.chdir is not supported');
-};
-process.umask = function() { return 0; };
-
-
-/***/ }),
-/* 4 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(process) {
-
-var utils = __webpack_require__(0);
-var normalizeHeaderName = __webpack_require__(21);
-
-var DEFAULT_CONTENT_TYPE = {
-  'Content-Type': 'application/x-www-form-urlencoded'
-};
-
-function setContentTypeIfUnset(headers, value) {
-  if (!utils.isUndefined(headers) && utils.isUndefined(headers['Content-Type'])) {
-    headers['Content-Type'] = value;
-  }
-}
-
-function getDefaultAdapter() {
-  var adapter;
-  if (typeof XMLHttpRequest !== 'undefined') {
-    // For browsers use XHR adapter
-    adapter = __webpack_require__(6);
-  } else if (typeof process !== 'undefined') {
-    // For node use HTTP adapter
-    adapter = __webpack_require__(6);
-  }
-  return adapter;
-}
-
-var defaults = {
-  adapter: getDefaultAdapter(),
-
-  transformRequest: [function transformRequest(data, headers) {
-    normalizeHeaderName(headers, 'Content-Type');
-    if (utils.isFormData(data) ||
-      utils.isArrayBuffer(data) ||
-      utils.isBuffer(data) ||
-      utils.isStream(data) ||
-      utils.isFile(data) ||
-      utils.isBlob(data)
-    ) {
-      return data;
-    }
-    if (utils.isArrayBufferView(data)) {
-      return data.buffer;
-    }
-    if (utils.isURLSearchParams(data)) {
-      setContentTypeIfUnset(headers, 'application/x-www-form-urlencoded;charset=utf-8');
-      return data.toString();
-    }
-    if (utils.isObject(data)) {
-      setContentTypeIfUnset(headers, 'application/json;charset=utf-8');
-      return JSON.stringify(data);
-    }
-    return data;
-  }],
-
-  transformResponse: [function transformResponse(data) {
-    /*eslint no-param-reassign:0*/
-    if (typeof data === 'string') {
-      try {
-        data = JSON.parse(data);
-      } catch (e) { /* Ignore */ }
-    }
-    return data;
-  }],
-
-  /**
-   * A timeout in milliseconds to abort a request. If set to 0 (default) a
-   * timeout is not created.
-   */
-  timeout: 0,
-
-  xsrfCookieName: 'XSRF-TOKEN',
-  xsrfHeaderName: 'X-XSRF-TOKEN',
-
-  maxContentLength: -1,
-
-  validateStatus: function validateStatus(status) {
-    return status >= 200 && status < 300;
-  }
-};
-
-defaults.headers = {
-  common: {
-    'Accept': 'application/json, text/plain, */*'
-  }
-};
-
-utils.forEach(['delete', 'get', 'head'], function forEachMethodNoData(method) {
-  defaults.headers[method] = {};
-});
-
-utils.forEach(['post', 'put', 'patch'], function forEachMethodWithData(method) {
-  defaults.headers[method] = utils.merge(DEFAULT_CONTENT_TYPE);
-});
-
-module.exports = defaults;
-
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
-
-/***/ }),
-/* 5 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-module.exports = function bind(fn, thisArg) {
-  return function wrap() {
-    var args = new Array(arguments.length);
-    for (var i = 0; i < args.length; i++) {
-      args[i] = arguments[i];
-    }
-    return fn.apply(thisArg, args);
-  };
-};
-
-
-/***/ }),
-/* 6 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(process) {
-
-var utils = __webpack_require__(0);
-var settle = __webpack_require__(22);
-var buildURL = __webpack_require__(24);
-var parseHeaders = __webpack_require__(25);
-var isURLSameOrigin = __webpack_require__(26);
-var createError = __webpack_require__(7);
-var btoa = (typeof window !== 'undefined' && window.btoa && window.btoa.bind(window)) || __webpack_require__(27);
-
-module.exports = function xhrAdapter(config) {
-  return new Promise(function dispatchXhrRequest(resolve, reject) {
-    var requestData = config.data;
-    var requestHeaders = config.headers;
-
-    if (utils.isFormData(requestData)) {
-      delete requestHeaders['Content-Type']; // Let the browser set it
-    }
-
-    var request = new XMLHttpRequest();
-    var loadEvent = 'onreadystatechange';
-    var xDomain = false;
-
-    // For IE 8/9 CORS support
-    // Only supports POST and GET calls and doesn't returns the response headers.
-    // DON'T do this for testing b/c XMLHttpRequest is mocked, not XDomainRequest.
-    if (process.env.NODE_ENV !== 'test' &&
-        typeof window !== 'undefined' &&
-        window.XDomainRequest && !('withCredentials' in request) &&
-        !isURLSameOrigin(config.url)) {
-      request = new window.XDomainRequest();
-      loadEvent = 'onload';
-      xDomain = true;
-      request.onprogress = function handleProgress() {};
-      request.ontimeout = function handleTimeout() {};
-    }
-
-    // HTTP basic authentication
-    if (config.auth) {
-      var username = config.auth.username || '';
-      var password = config.auth.password || '';
-      requestHeaders.Authorization = 'Basic ' + btoa(username + ':' + password);
-    }
-
-    request.open(config.method.toUpperCase(), buildURL(config.url, config.params, config.paramsSerializer), true);
-
-    // Set the request timeout in MS
-    request.timeout = config.timeout;
-
-    // Listen for ready state
-    request[loadEvent] = function handleLoad() {
-      if (!request || (request.readyState !== 4 && !xDomain)) {
-        return;
-      }
-
-      // The request errored out and we didn't get a response, this will be
-      // handled by onerror instead
-      // With one exception: request that using file: protocol, most browsers
-      // will return status as 0 even though it's a successful request
-      if (request.status === 0 && !(request.responseURL && request.responseURL.indexOf('file:') === 0)) {
-        return;
-      }
-
-      // Prepare the response
-      var responseHeaders = 'getAllResponseHeaders' in request ? parseHeaders(request.getAllResponseHeaders()) : null;
-      var responseData = !config.responseType || config.responseType === 'text' ? request.responseText : request.response;
-      var response = {
-        data: responseData,
-        // IE sends 1223 instead of 204 (https://github.com/axios/axios/issues/201)
-        status: request.status === 1223 ? 204 : request.status,
-        statusText: request.status === 1223 ? 'No Content' : request.statusText,
-        headers: responseHeaders,
-        config: config,
-        request: request
-      };
-
-      settle(resolve, reject, response);
-
-      // Clean up request
-      request = null;
-    };
-
-    // Handle low level network errors
-    request.onerror = function handleError() {
-      // Real errors are hidden from us by the browser
-      // onerror should only fire if it's a network error
-      reject(createError('Network Error', config, null, request));
-
-      // Clean up request
-      request = null;
-    };
-
-    // Handle timeout
-    request.ontimeout = function handleTimeout() {
-      reject(createError('timeout of ' + config.timeout + 'ms exceeded', config, 'ECONNABORTED',
-        request));
-
-      // Clean up request
-      request = null;
-    };
-
-    // Add xsrf header
-    // This is only done if running in a standard browser environment.
-    // Specifically not if we're in a web worker, or react-native.
-    if (utils.isStandardBrowserEnv()) {
-      var cookies = __webpack_require__(28);
-
-      // Add xsrf header
-      var xsrfValue = (config.withCredentials || isURLSameOrigin(config.url)) && config.xsrfCookieName ?
-          cookies.read(config.xsrfCookieName) :
-          undefined;
-
-      if (xsrfValue) {
-        requestHeaders[config.xsrfHeaderName] = xsrfValue;
-      }
-    }
-
-    // Add headers to the request
-    if ('setRequestHeader' in request) {
-      utils.forEach(requestHeaders, function setRequestHeader(val, key) {
-        if (typeof requestData === 'undefined' && key.toLowerCase() === 'content-type') {
-          // Remove Content-Type if data is undefined
-          delete requestHeaders[key];
-        } else {
-          // Otherwise add header to the request
-          request.setRequestHeader(key, val);
-        }
-      });
-    }
-
-    // Add withCredentials to request if needed
-    if (config.withCredentials) {
-      request.withCredentials = true;
-    }
-
-    // Add responseType to request if needed
-    if (config.responseType) {
-      try {
-        request.responseType = config.responseType;
-      } catch (e) {
-        // Expected DOMException thrown by browsers not compatible XMLHttpRequest Level 2.
-        // But, this can be suppressed for 'json' type as it can be parsed by default 'transformResponse' function.
-        if (config.responseType !== 'json') {
-          throw e;
-        }
-      }
-    }
-
-    // Handle progress if needed
-    if (typeof config.onDownloadProgress === 'function') {
-      request.addEventListener('progress', config.onDownloadProgress);
-    }
-
-    // Not all browsers support upload events
-    if (typeof config.onUploadProgress === 'function' && request.upload) {
-      request.upload.addEventListener('progress', config.onUploadProgress);
-    }
-
-    if (config.cancelToken) {
-      // Handle cancellation
-      config.cancelToken.promise.then(function onCanceled(cancel) {
-        if (!request) {
-          return;
-        }
-
-        request.abort();
-        reject(cancel);
-        // Clean up request
-        request = null;
-      });
-    }
-
-    if (requestData === undefined) {
-      requestData = null;
-    }
-
-    // Send the request
-    request.send(requestData);
-  });
-};
-
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
-
-/***/ }),
-/* 7 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var enhanceError = __webpack_require__(23);
-
-/**
- * Create an Error with the specified message, config, error code, request and response.
- *
- * @param {string} message The error message.
- * @param {Object} config The config.
- * @param {string} [code] The error code (for example, 'ECONNABORTED').
- * @param {Object} [request] The request.
- * @param {Object} [response] The response.
- * @returns {Error} The created error.
- */
-module.exports = function createError(message, config, code, request, response) {
-  var error = new Error(message);
-  return enhanceError(error, config, code, request, response);
-};
-
-
-/***/ }),
-/* 8 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-module.exports = function isCancel(value) {
-  return !!(value && value.__CANCEL__);
-};
-
-
-/***/ }),
-/* 9 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-/**
- * A `Cancel` is an object that is thrown when an operation is canceled.
- *
- * @class
- * @param {string=} message The message.
- */
-function Cancel(message) {
-  this.message = message;
-}
-
-Cancel.prototype.toString = function toString() {
-  return 'Cancel' + (this.message ? ': ' + this.message : '');
-};
-
-Cancel.prototype.__CANCEL__ = true;
-
-module.exports = Cancel;
-
-
-/***/ }),
-/* 10 */
+/* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
 document.addEventListener("DOMContentLoaded", () => {
-  const speech = __webpack_require__(11);
+  const speech = __webpack_require__(3);
 });
 
 
 /***/ }),
-/* 11 */
+/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 ////////////////////////////////////////////////////////////////////////
@@ -1067,12 +194,11 @@ recognition.addEventListener('result', e => {
     p.textContent = transcript;
 
     if (e.results[0].isFinal) {
-
       if ((/(jarvis)(?!.*((don\'t)|(stop))).*(search for)/i).test(transcript)) {
         searchSoundCloud(transcript.match(/(for)(.*)/i)[2]);
       }
 
-      if ((/(jarvis)(?!.*((don\'t)|(stop))).*(play)/i).test(transcript)) {
+      if ((/(jarvis).*(play)/i).test(transcript)) {
         playSong(transcript.match(/(play)(.*)/i)[2]);
       }
 
@@ -1104,20 +230,16 @@ recognition.addEventListener('result', e => {
         seekSong(transcript.match(/\d+/)[0]);
       }
 
-      if ((/(jarvis)(?!.*(don\'t)).*(rewind).*(\d+).(seconds)/i).test(transcript)) {
-        seekSong(-1 * transcript.match(/\d+/)[0]);
-      }
-
-      if ((/((jarvis)(?!.*(don\'t)).*(skip|(go to)).*(start|beginning))|(jarvis).*(replay)/i).test(transcript)) {
+      if ((/((jarvis)(?!.*(don\'t)).*(skip|(go)).*(start|beginning))|(jarvis).*(replay)/i).test(transcript)) {
         seekSong('begin');
       }
 
-      if ((/((jarvis)(?!.*(don\'t)).*(skip|(go to)).*(end))|(jarvis).*(stop)/i).test(transcript)) {
+      if ((/((jarvis)(?!.*(don\'t)).*(skip|(go)).*(end))|(jarvis).*(stop)/i).test(transcript)) {
         seekSong('end');
       }
 
       if ((/(jarvis)(?!.*(don\'t)).*((go back)|rewind).*(\d+).(seconds)/i).test(transcript)) {
-        seekSong(transcript.match(/\d+/)[0]);
+        seekSong(-1 * transcript.match(/\d+/)[0]);
       }
     }
 });
@@ -1131,14 +253,8 @@ recognition.start();
 ////////////////////////////////////////////////////////////////////////
 
 
-const SC = __webpack_require__(12);
-const SoundcloudWidget = __webpack_require__(14);
-
-const axios = __webpack_require__(17);
-const apiKey = 'AIzaSyBY9vqgOQZCQqgnK57pCXdFKR0YPCk9zFc';
-
-// const cx = '017515603852271078757:yjhxuxng8z0';
-const cx = '017515603852271078757:mnwqv4gxmce';
+const SC = __webpack_require__(4);
+const SoundcloudWidget = __webpack_require__(7);
 
 const clientId = 'oFtM3fjLWICzaDucukME93LEYf0KIXKM';
 const appVersion = 1523891119;
@@ -1146,6 +262,8 @@ SC.initialize({
   client_id: clientId
 });
 
+
+const searchContainer = document.querySelector('.search-container');
 let widget = new SC.Widget(document.querySelector('.soundcloud-player'));
 let currentVolume = 100;
 let options = {
@@ -1167,18 +285,6 @@ function searchSoundCloud(userInput) {
   }).then(function(tracks) {
     showTracks(tracks);
   });
-
-  // const url = `https://www.googleapis.com/customsearch/v1?key=${apiKey}&cx=${cx}&q=${userInput}`;
-  // fetch(url).then(function(response) {
-  //   return response.json();
-  // })
-  // .then(function(myJson) {
-  //   if (myJson.collection.length > 0)
-  //     // playSong(myJson.items[0].formattedUrl);
-  //     console.log(myJson.collection[0].formattedUrl);
-  //   else
-  //     console.log('no song was found');
-  // });
 }
 
 function playSong(userInput) {
@@ -1235,6 +341,7 @@ function seekSong(time) {
   } else {
     widget.getPosition(position => {
       let currentTime = position + (time * 1000);
+      console.log(currentTime);
       widget.getDuration(duration => {
         if (currentTime >= 0 && currentTime <= duration)
           widget.seekTo(currentTime);
@@ -1242,9 +349,6 @@ function seekSong(time) {
     });
   }
 }
-
-
-const searchContainer = document.querySelector('.search-container');
 
 function showTracks(tracks){
   for(let i = 0; i < tracks.length; i++){
@@ -1274,9 +378,29 @@ function showTracks(tracks){
   }
 }
 
+// Google search engine API
+
+// const axios = require('axios');
+// const apiKey = 'AIzaSyBY9vqgOQZCQqgnK57pCXdFKR0YPCk9zFc';
+//
+// // const cx = '017515603852271078757:yjhxuxng8z0';
+// const cx = '017515603852271078757:mnwqv4gxmce';
+//
+// const url = `https://www.googleapis.com/customsearch/v1?key=${apiKey}&cx=${cx}&q=${userInput}`;
+// fetch(url).then(function(response) {
+//   return response.json();
+// })
+// .then(function(myJson) {
+//   if (myJson.collection.length > 0)
+//     // playSong(myJson.items[0].formattedUrl);
+//     console.log(myJson.collection[0].formattedUrl);
+//   else
+//     console.log('no song was found');
+// });
+
 
 /***/ }),
-/* 12 */
+/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(setImmediate, clearImmediate) {!function(e,t){if(true)module.exports=t();else if("function"==typeof define&&define.amd)define([],t);else{var r=t();for(var n in r)("object"==typeof exports?exports:e)[n]=r[n]}}(this,function(){return function(e){function t(n){if(r[n])return r[n].exports;var o=r[n]={exports:{},id:n,loaded:!1};return e[n].call(o.exports,o,o.exports,t),o.loaded=!0,o.exports}var r={};return t.m=e,t.c=r,t.p="",t(0)}([function(e,t,r){(function(t){"use strict";var n=r(4),o=r(8),i=r(3),a=r(9),s=r(2).Promise,u=r(16),l=r(17);e.exports=t.SC={initialize:function(){var e=arguments.length<=0||void 0===arguments[0]?{}:arguments[0];i.set("oauth_token",e.oauth_token),i.set("client_id",e.client_id),i.set("redirect_uri",e.redirect_uri),i.set("baseURL",e.baseURL),i.set("connectURL",e.connectURL)},get:function(e,t){return n.request("GET",e,t)},post:function(e,t){return n.request("POST",e,t)},put:function(e,t){return n.request("PUT",e,t)},delete:function(e){return n.request("DELETE",e)},upload:function(e){return n.upload(e)},connect:function(e){return a(e)},isConnected:function(){return void 0!==i.get("oauth_token")},oEmbed:function(e,t){return n.oEmbed(e,t)},resolve:function(e){return n.resolve(e)},Recorder:u,Promise:s,stream:function(e,t){return l(e,t)},connectCallback:function(){o.notifyDialog(this.location)}}}).call(t,function(){return this}())},function(e,t){e.exports=function(e){function t(n){if(r[n])return r[n].exports;var o=r[n]={exports:{},id:n,loaded:!1};return e[n].call(o.exports,o,o.exports,t),o.loaded=!0,o.exports}var r={};return t.m=e,t.c=r,t.p="",t(0)}([function(e,t,r){e.exports={SCAudio:r(1),SCAudioPublicApiStreamURLRetriever:r(9),MaestroCore:r(2),MaestroLoaders:r(8),MaestroHTML5Player:r(7),MaestroHLSMSEPlayer:r(3)}},function(e,t,r){!function(t,n){e.exports=n(r(2),function(){try{return r(!function(){var e=new Error('Cannot find module "@sc/maestro-chromecast-player"');throw e.code="MODULE_NOT_FOUND",e}())}catch(e){}}(),function(){try{return r(!function(){var e=new Error('Cannot find module "@sc/maestro-flipper-player"');throw e.code="MODULE_NOT_FOUND",e}())}catch(e){}}(),function(){try{return r(3)}catch(e){}}(),function(){try{return r(7)}catch(e){}}(),r(8))}(this,function(e,t,r,n,o,i){return function(e){function t(n){if(r[n])return r[n].exports;var o=r[n]={i:n,l:!1,exports:{}};return e[n].call(o.exports,o,o.exports,t),o.l=!0,o.exports}var r={};return t.m=e,t.c=r,t.i=function(e){return e},t.d=function(e,r,n){t.o(e,r)||Object.defineProperty(e,r,{configurable:!1,enumerable:!0,get:n})},t.n=function(e){var r=e&&e.__esModule?function(){return e.default}:function(){return e};return t.d(r,"a",r),r},t.o=function(e,t){return Object.prototype.hasOwnProperty.call(e,t)},t.p="",t(t.s=95)}([function(t,r){t.exports=e},function(e,t,r){"use strict";var n=r(4);e.exports=function(e){if(!n(e))throw new TypeError("Cannot use null or undefined");return e}},function(e,t,r){"use strict";e.exports=function(e){if("function"!=typeof e)throw new TypeError(e+" is not a function");return e}},function(e,t,r){"use strict";e.exports=r(64)()?Symbol:r(66)},function(e,t,r){"use strict";var n=r(17)();e.exports=function(e){return e!==n&&null!==e}},function(e,t,r){"use strict";var n,o=r(9),i=r(19),a=r(50),s=r(22);n=e.exports=function(e,t){var r,n,a,u,l;return arguments.length<2||"string"!=typeof e?(u=t,t=e,e=null):u=arguments[2],null==e?(r=a=!0,n=!1):(r=s.call(e,"c"),n=s.call(e,"e"),a=s.call(e,"w")),l={value:t,configurable:r,enumerable:n,writable:a},u?o(i(u),l):l},n.gs=function(e,t,r){var n,u,l,c;return"string"!=typeof e?(l=r,r=t,t=e,e=null):l=arguments[3],null==t?t=void 0:a(t)?null==r?r=void 0:a(r)||(l=r,r=void 0):(l=t,t=r=void 0),null==e?(n=!0,u=!1):(n=s.call(e,"c"),u=s.call(e,"e")),c={get:t,set:r,configurable:n,enumerable:u},l?o(i(l),c):c}},function(e,t,r){"use strict";var n=this&&this.__extends||function(){var e=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(e,t){e.__proto__=t}||function(e,t){for(var r in t)t.hasOwnProperty(r)&&(e[r]=t[r])};return function(t,r){function n(){this.constructor=t}e(t,r),t.prototype=null===r?Object.create(r):(n.prototype=r.prototype,new n)}}();Object.defineProperty(t,"__esModule",{value:!0});var o=r(0),i=function(e){function t(t,r){void 0===r&&(r="API error.");var n=e.call(this,r)||this;return n.statusCode=t,n}return n(t,e),t.prototype.getCode=function(){return"SCAUDIO.API_ERROR."+(this.statusCode||"TIMEOUT")},t.prototype.getStatusCode=function(){return this.statusCode},t}(o.errors.PlayerFatalError);t.ApiError=i},function(e,t,r){"use strict";var n=Object.prototype.toString,o=n.call(function(){return arguments}());e.exports=function(e){return n.call(e)===o}},function(e,t,r){"use strict";var n=Object.prototype.toString,o=n.call("");e.exports=function(e){return"string"==typeof e||e&&"object"==typeof e&&(e instanceof String||n.call(e)===o)||!1}},function(e,t,r){"use strict";e.exports=r(45)()?Object.assign:r(46)},function(e,t,r){"use strict";e.exports=r(20)()?Object.setPrototypeOf:r(21)},function(e,t,r){"use strict";var n=this&&this.__extends||function(){var e=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(e,t){e.__proto__=t}||function(e,t){for(var r in t)t.hasOwnProperty(r)&&(e[r]=t[r])};return function(t,r){function n(){this.constructor=t}e(t,r),t.prototype=null===r?Object.create(r):(n.prototype=r.prototype,new n)}}();Object.defineProperty(t,"__esModule",{value:!0});var o=r(0),i=function(e){function t(t){return e.call(this,t||"There was no format available that a player was able to play.")||this}return n(t,e),t.prototype.getCode=function(){return"SCAUDIO.NOT_SUPPORTED_ERROR"},t}(o.errors.PlayerFatalError);t.NotSupportedError=i},function(e,t,r){"use strict";function n(e){return new i({startPos:0,endPos:e,startLevel:0,endLevel:1,fromEnd:!1})}function o(e){return new i({startPos:e,endPos:0,startLevel:1,endLevel:0,fromEnd:!0})}Object.defineProperty(t,"__esModule",{value:!0}),t.buildFadeIn=n,t.buildFadeOut=o;var i=function(){function e(e){var t=e.startPos,r=e.endPos,n=e.startLevel,o=e.endLevel,i=e.fromEnd,a=void 0!==i&&i;if(t<0)throw new Error("startPos invalid.");if(r<0||!a&&r<t||a&&t<r)throw new Error("endPos invalid.");if(n<0||n>1)throw new Error("startLevel invalid.");if(o<0||o>1)throw new Error("endLevel invalid.");this._startPos=t,this._endPos=r,this._startLevel=n,this._endLevel=o,this._fromEnd=a}return e.prototype.calculate=function(e,t){var r=this._fromEnd?t-500-this._startPos:this._startPos,n=this._fromEnd?t-500-this._endPos:this._endPos;if(e<r)return{level:this._startLevel,nextCalculatePosition:r-e};if(e<=n){var o=(e-r)/(n-r),i=Math.cos(o*Math.PI)/-2+.5,a=this._startLevel+(this._endLevel-this._startLevel)*i;return{level:a,nextCalculatePosition:e}}return{level:this._endLevel,nextCalculatePosition:1/0}},e}();t.Fade=i},function(e,t,r){"use strict";Object.defineProperty(t,"__esModule",{value:!0});var n=function(){function e(){}return e}();t.BaseStreamUrlRetriever=n},function(e,t,r){"use strict";function n(e,t,r){return Math.min(t,Math.max(e,r))}var o=this&&this.__extends||function(){var e=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(e,t){e.__proto__=t}||function(e,t){for(var r in t)t.hasOwnProperty(r)&&(e[r]=t[r])};return function(t,r){function n(){this.constructor=t}e(t,r),t.prototype=null===r?Object.create(r):(n.prototype=r.prototype,new n)}}();Object.defineProperty(t,"__esModule",{value:!0});var i=r(0),a=r(12),s=i.eventDispatcher.EventDispatcher,u=i.helpers.Promise,l=i.helpers.deferred.buildDeferred,c=100,d=5e3,f=1500,p=function(e){function t(t,r){var n=e.call(this,t)||this;return n._onPreloadingEnabled=new s,n._onPreloadingDisabled=new s,n._onConnectionRequired=new s,n._onConnectionRecovered=new s,n._volumeAutomators=[],n._volumeScale=1,n._userVolume=1,n._volumeAutomationSupported=!1,n._timer=null,n._pauseFadeTimer=null,n._pauseFadeDeferred=null,n._pauseFade=null,n._connectionRequired=!1,n._connectionLossTimer=null,n.onPreloadingEnabled=n._onPreloadingEnabled.getHandle(),n.onPreloadingDisabled=n._onPreloadingDisabled.getHandle(),n.onConnectionRequired=n._onConnectionRequired.getHandle(),n.onConnectionRecovered=n._onConnectionRecovered.getHandle(),n._reloadStreamUrls=r,n._pausedMaxBufferLength=t.pausedMaxBufferLength,n._playingMaxBufferLength=t.playingMaxBufferLength,n._preloadingEnabled=t.preloadingEnabled,n.onPlayerProvided.subscribe(function(){return n._updateMaxBufferLength()}),n.onChange.subscribe(function(e){n.isDead()||((e.playing===!1||e.positionJumped||e.stalled||e.ended)&&n._completePauseFade(),n._pauseFade&&(e.actuallyPlaying===!1||e.ended)&&(n.removeVolumeAutomator(n._pauseFade),n._pauseFade=null),(e.positionJumped||void 0!==e.actuallyPlaying||void 0!==e.stalled)&&n._updateVolume(),void 0!==e.playing&&n._updateMaxBufferLength(),void 0!==e.loading&&n._calculateIfConnectionRequired())}),window.addEventListener("online",function(){return n._calculateIfConnectionRequired()}),window.addEventListener("offline",function(){return n._calculateIfConnectionRequired()}),n._calculateIfConnectionRequired(),n}return o(t,e),t.prototype.reload=function(){this._ensureNotDead(),this._reloadStreamUrls()},t.prototype.enablePreloading=function(){this.isDead()||this._preloadingEnabled||(this._preloadingEnabled=!0,this._updateMaxBufferLength(),this._onPreloadingEnabled.dispatch(void 0))},t.prototype.disablePreloading=function(){this.isDead()||this._preloadingEnabled&&(this._preloadingEnabled=!1,this._updateMaxBufferLength(),this._onPreloadingDisabled.dispatch(void 0))},t.prototype.isPreloadingEnabled=function(){return this._preloadingEnabled},t.prototype.pauseAfterFade=function(e){var t=this;if(this._ensureNotDead(),this._pauseFadeDeferred)return this._pauseFadeDeferred.promise;if(!this.isPlaying()||!this.isActuallyPlaying())return u.resolve(this.pause());var r=l();this._pauseFadeDeferred=r;var n=this.getPosition();if(this._pauseFade)throw new Error("Fade should not already be assigned.");return this._pauseFade=new a.Fade({startPos:n,endPos:n+e,startLevel:1,endLevel:0}),this.addVolumeAutomator(this._pauseFade),this._pauseFadeTimer=window.setTimeout(function(){t._pauseFadeDeferred=null,r.resolve(t.pause())},e+50),r.promise},t.prototype.isConnectionRequired=function(){return this._connectionRequired},t.prototype.getVolume=function(){return this._volumeAutomationSupported?this._userVolume:e.prototype.getVolume.call(this)},t.prototype.addVolumeAutomator=function(e){var t=this._volumeAutomators.indexOf(e);t<0&&(this._volumeAutomators.push(e),this._updateVolume())},t.prototype.removeVolumeAutomator=function(e){var t=this._volumeAutomators.indexOf(e);t>=0&&(this._volumeAutomators.splice(t,1),this._updateVolume())},t.prototype._triggerError=function(t){e.prototype._triggerError.call(this,t)},t.prototype.providePlayer=function(t,r,n){void 0===n&&(n=!0),this._volumeAutomationSupported=n,e.prototype.providePlayer.call(this,t,r)},t.prototype._setVolume=function(e){this._userVolume=e,this._calculateAndSetVolume()},t.prototype._kill=function(){this._timer&&window.clearTimeout(this._timer),null!==this._connectionLossTimer&&window.clearTimeout(this._connectionLossTimer),this._abortPauseFade(),e.prototype._kill.call(this)},t.prototype._calculateIfConnectionRequired=function(){var e=this,t=this.isLoading()&&"navigator"in window&&!window.navigator.onLine;t?null===this._connectionLossTimer&&(this._connectionLossTimer=window.setTimeout(function(){e._connectionLossTimer=null,e._connectionRequired=!0,e._onConnectionRequired.dispatch(void 0)},f)):this._connectionRequired?(this._connectionRequired=!1,this._onConnectionRecovered.dispatch(void 0)):null!==this._connectionLossTimer&&(window.clearTimeout(this._connectionLossTimer),this._connectionLossTimer=null)},t.prototype._completePauseFade=function(){if(this._pauseFadeDeferred){this._pauseFadeTimer&&window.clearTimeout(this._pauseFadeTimer);var e=this._pauseFadeDeferred;this._pauseFadeDeferred=null,e.resolve(this.pause())}},t.prototype._abortPauseFade=function(){this._pauseFadeTimer&&(window.clearTimeout(this._pauseFadeTimer),this._pauseFadeTimer=null),this._pauseFadeDeferred&&(this._pauseFadeDeferred.reject(new Error("Player was killed.")),this._pauseFadeDeferred=null)},t.prototype._updateVolume=function(){var e=this;if(this._volumeAutomationSupported){this._ensureNotDead(),this._timer&&(window.clearTimeout(this._timer),this._timer=null);var t=this.getDuration();if(null!==t){var r=this._volumeAutomators,o=this.getPosition(),i=1/0,a=1;r.forEach(function(e){var r=e.calculate(o,t),s=r.nextCalculatePosition,u=r.level;a*=n(0,1,u),s<i&&(i=s)}),this._volumeScale!==a&&(this._volumeScale=a,this._calculateAndSetVolume()),i<1/0&&this.isActuallyPlaying()&&!this.isStalled()&&(this._timer=window.setTimeout(function(){e._timer=null,e._updateVolume()},n(c,d,i-this.getPosition())))}}},t.prototype._calculateAndSetVolume=function(){this._volumeAutomationSupported?e.prototype._setVolume.call(this,this._userVolume*this._volumeScale):e.prototype._setVolume.call(this,this._userVolume)},t.prototype._updateMaxBufferLength=function(){var e=this.getPlayer(),t=e&&e.getBufferController();t&&(this.isPlaying()?t.setMaxBufferLength(this._playingMaxBufferLength):t.setMaxBufferLength(this._preloadingEnabled?this._pausedMaxBufferLength:0))},t}(i.ProxyPlayer);t.Player=p},function(e,t,r){"use strict";Object.defineProperty(t,"__esModule",{value:!0});var n=r(88);t.renditions=n.renditions},function(e,t,r){"use strict";Object.defineProperty(t,"__esModule",{value:!0});var n=function(){function e(e){this.statusCode=e}return e.prototype.getStatusCode=function(){return this.statusCode},e}();t.RequestError=n},function(e,t,r){"use strict";e.exports=function(){}},function(e,t,r){"use strict";var n=r(4),o={function:!0,object:!0};e.exports=function(e){return n(e)&&o[typeof e]||!1}},function(e,t,r){"use strict";var n=r(4),o=Array.prototype.forEach,i=Object.create,a=function(e,t){var r;for(r in e)t[r]=e[r]};e.exports=function(e){var t=i(null);return o.call(arguments,function(e){n(e)&&a(Object(e),t)}),t}},function(e,t,r){"use strict";var n=Object.create,o=Object.getPrototypeOf,i={};e.exports=function(){var e=Object.setPrototypeOf,t=arguments[0]||n;return"function"==typeof e&&o(e(t(null),i))===i}},function(e,t,r){"use strict";var n,o=r(18),i=r(1),a=Object.prototype.isPrototypeOf,s=Object.defineProperty,u={configurable:!0,enumerable:!1,writable:!0,value:void 0};n=function(e,t){if(i(e),null===t||o(t))return e;throw new TypeError("Prototype must be null or an object")},e.exports=function(e){var t,r;return e?(2===e.level?e.set?(r=e.set,t=function(e,t){return r.call(n(e,t),t),e}):t=function(e,t){return n(e,t).__proto__=t,e}:t=function e(t,r){var o;return n(t,r),o=a.call(e.nullPolyfill,t),o&&delete e.nullPolyfill.__proto__,null===r&&(r=e.nullPolyfill),t.__proto__=r,o&&s(e.nullPolyfill,"__proto__",u),t},Object.defineProperty(t,"level",{configurable:!1,enumerable:!1,writable:!1,value:e.level})):null}(function(){var e,t=Object.create(null),r={},n=Object.getOwnPropertyDescriptor(Object.prototype,"__proto__");if(n){try{e=n.set,e.call(t,r)}catch(e){}if(Object.getPrototypeOf(t)===r)return{set:e,level:2}}return t.__proto__=r,Object.getPrototypeOf(t)===r?{level:2}:(t={},t.__proto__=r,Object.getPrototypeOf(t)===r&&{level:1})}()),r(48)},function(e,t,r){"use strict";e.exports=r(56)()?String.prototype.contains:r(57)},function(e,t,r){"use strict";var n=r(7),o=r(8),i=r(59),a=r(62),s=r(63),u=r(3).iterator;e.exports=function(e){return"function"==typeof s(e)[u]?e[u]():n(e)?new i(e):o(e)?new a(e):new i(e)}},function(e,t,r){"use strict";var n,o=r(34),i=r(9),a=r(2),s=r(1),u=r(5),l=r(33),c=r(3),d=Object.defineProperty,f=Object.defineProperties;e.exports=n=function(e,t){if(!(this instanceof n))throw new TypeError("Constructor requires 'new'");f(this,{__list__:u("w",s(e)),__context__:u("w",t),__nextIndex__:u("w",0)}),t&&(a(t.on),t.on("_add",this._onAdd),t.on("_delete",this._onDelete),t.on("_clear",this._onClear))},delete n.prototype.constructor,f(n.prototype,i({_next:u(function(){var e;if(this.__list__)return this.__redo__&&(e=this.__redo__.shift(),void 0!==e)?e:this.__nextIndex__<this.__list__.length?this.__nextIndex__++:void this._unBind()}),next:u(function(){return this._createResult(this._next())}),_createResult:u(function(e){return void 0===e?{done:!0,value:void 0}:{done:!1,value:this._resolve(e)}}),_resolve:u(function(e){return this.__list__[e]}),_unBind:u(function(){this.__list__=null,delete this.__redo__,this.__context__&&(this.__context__.off("_add",this._onAdd),this.__context__.off("_delete",this._onDelete),this.__context__.off("_clear",this._onClear),this.__context__=null)}),toString:u(function(){return"[object "+(this[c.toStringTag]||"Object")+"]"})},l({_onAdd:u(function(e){if(!(e>=this.__nextIndex__)){if(++this.__nextIndex__,!this.__redo__)return void d(this,"__redo__",u("c",[e]));this.__redo__.forEach(function(t,r){t>=e&&(this.__redo__[r]=++t)},this),this.__redo__.push(e)}}),_onDelete:u(function(e){var t;e>=this.__nextIndex__||(--this.__nextIndex__,this.__redo__&&(t=this.__redo__.indexOf(e),t!==-1&&this.__redo__.splice(t,1),this.__redo__.forEach(function(t,r){t>e&&(this.__redo__[r]=--t)},this)))}),_onClear:u(function(){this.__redo__&&o.call(this.__redo__),this.__nextIndex__=0})}))),d(n.prototype,c.iterator,u(function(){return this}))},function(e,t,r){"use strict";function n(e){return e.match(s)[0]}function o(e,t){if(t instanceof e.errors.RetrievalError){var r=t.getCause();if(r instanceof e.retrievalErrors.UnacceptableResponseStatusCodeError)return 403===r.getStatusCode()}return!1}function i(e,t,r,i,s,u,l,c,d){d=a.logger.prefixLogger(d,"HLSMSEPlayer Controller");var f=null,p=n(c);r.onChange.subscribe(function(e){var t=e.dead;t&&f&&(d.debug("Aborting URL retrieve because player was killed."),f.abort())}),r.onError.subscribe(function(t){if(!(t instanceof a.errors.NotSupportedError)){if(i){if(t instanceof a.errors.URLUpdateError)return d.error("URL refresh failed for some reason.",t),void s({retryPlayer:!0});if(o(e,t))return f?void d.debug("Got a 403 status code, but URL refresh already in progress."):(d.info("Got a 403 status code. Peforming a URL refresh..."),f=l.getUrl(),void f.whenComplete().then(function(e){if(e){var t=e.url,o=e.rendition;n(t)!==p||JSON.stringify(u)!==JSON.stringify(o)?(d.warn("Got a new URL but the rendition did not match the original."),s({retryPlayer:!1})):(f=null,d.info("Got a new URL. Updating..."),r.getUrlController().updateUrl(t))}else d.warn("Could not get a new URL."),s({retryPlayer:!1})}).catch(function(e){d.error("Unexpected error when trying to retrieve a new URL.",e),s({retryPlayer:!1})}))}d.error("Unexpected player error.",t),s({retryPlayer:!1})}}),t.providePlayer(r)}Object.defineProperty(t,"__esModule",{value:!0});var a=r(0),s=/^[^\?#]*/;t.isErrorWhichShouldTriggerURLRefresh=o,t.takeControlHLSMSEPlayer=i},function(e,t,r){"use strict";var n=this&&this.__extends||function(){var e=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(e,t){e.__proto__=t}||function(e,t){for(var r in t)t.hasOwnProperty(r)&&(e[r]=t[r])};return function(t,r){function n(){this.constructor=t}e(t,r),t.prototype=null===r?Object.create(r):(n.prototype=r.prototype,new n)}}();Object.defineProperty(t,"__esModule",{value:!0});var o=r(6),i=function(e){function t(){return null!==e&&e.apply(this,arguments)||this}return n(t,e),t.prototype.getCode=function(){return"SCAUDIO.GEOBLOCKED_ERROR"},t}(o.ApiError);t.GeoBlockedError=i},function(e,t,r){"use strict";var n=this&&this.__extends||function(){var e=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(e,t){e.__proto__=t}||function(e,t){for(var r in t)t.hasOwnProperty(r)&&(e[r]=t[r])};return function(t,r){function n(){this.constructor=t}e(t,r),t.prototype=null===r?Object.create(r):(n.prototype=r.prototype,new n)}}();Object.defineProperty(t,"__esModule",{value:!0});var o=r(11),i=function(e){function t(){return e.call(this,"There were no stream URLs.")||this}return n(t,e),t.prototype.getCode=function(){return"SCAUDIO.NO_STREAMS"},t}(o.NotSupportedError);t.NoStreamsError=i},function(e,t,r){"use strict";var n=this&&this.__extends||function(){var e=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(e,t){e.__proto__=t}||function(e,t){for(var r in t)t.hasOwnProperty(r)&&(e[r]=t[r])};return function(t,r){function n(){this.constructor=t}e(t,r),t.prototype=null===r?Object.create(r):(n.prototype=r.prototype,new n)}}();Object.defineProperty(t,"__esModule",{value:!0});var o=r(6),i=function(e){function t(){return e.call(this,null,"Request timed out too many times.")||this}return n(t,e),t.prototype.getCode=function(){return"SCAUDIO.TIMED_OUT_ERROR"},t}(o.ApiError);t.TimedOutError=i},function(e,t,r){"use strict";var n=this&&this.__extends||function(){var e=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(e,t){e.__proto__=t}||function(e,t){for(var r in t)t.hasOwnProperty(r)&&(e[r]=t[r])};return function(t,r){function n(){this.constructor=t}e(t,r),t.prototype=null===r?Object.create(r):(n.prototype=r.prototype,new n)}}();Object.defineProperty(t,"__esModule",{value:!0});var o=r(6),i=function(e){function t(){return null!==e&&e.apply(this,arguments)||this}return n(t,e),t.prototype.getCode=function(){return"SCAUDIO.UNAVAILABLE_ERROR"},t}(o.ApiError);t.UnavailableError=i},function(e,t,r){"use strict";Object.defineProperty(t,"__esModule",{value:!0});var n,o=r(6),i=r(26),a=r(11),s=r(28),u=r(29),l=r(27);!function(e){e.ApiError=o.ApiError,e.GeoBlockedError=i.GeoBlockedError,e.NotSupportedError=a.NotSupportedError,e.TimedOutError=s.TimedOutError,e.UnavailableError=u.UnavailableError,e.NoStreamsError=l.NoStreamsError}(n=t.errors||(t.errors={}))},function(e,t,r){"use strict";function n(){return re?re:(re=document.createElement("audio"),o(re),re)}function o(e){e.load()}function i(e){return e===Y||e===X}function a(e){return e.constructor===X}function s(e){return e.constructor===Y}function u(e){return e.constructor===Z}function l(e){return e.constructor===$}function c(e){var t=e.split("//",2);return 1===t.length?t[0].split("/",1)[0]:t[1]?t[1].split("/",1)[0]:""}function d(e){var t=ee.exec(e);return t&&t[0]||""}function f(){for(var e="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",t="",r=0;r<20;r++)t+=e.charAt(Math.floor(Math.random()*e.length));return t}function p(e){if("number"!=typeof e)throw new Error("level must be a number.");if(e<0||e>1)throw new Error("Invalid volume level.");se=e,ae.forEach(function(t){return t.setVolume(e)})}function h(){return se}function _(e){if("boolean"!=typeof e)throw new Error("muteEnabled must be a boolean.");ue=e,ae.forEach(function(t){return t.setMuted(e)})}function g(){return ue}function y(){n()}function v(e){function t(){return je?g(je):null}function r(){if(Be&&window.clearTimeout(Be),De.debug("Performing retrieve."),Ue)throw new Error("Player job already running. Only one instance of the job is allowed at once.");if(Ie.isDead())throw new Error("Proxy is dead.");var e=new B(function(){function e(){function t(e){if(e!==m.helpers.abortableJob.abortedError)if(e instanceof T.RequestError){var t=e.getStatusCode();switch(t){case 401:Ie._triggerError(new x.GeoBlockedError(t,"Geoblocked (logged out)."));break;case 403:Ie._triggerError(new x.GeoBlockedError(t,"Geoblocked (logged in)."));break;case 404:Ie._triggerError(new O.UnavailableError(t,"Track unavailable."));break;case null:throw new Error("Status code should not be null.");default:Ie._triggerError(new A.ApiError(t))}}else e===m.helpers.retry.noMoreAttemptsError?Ie._triggerError(new D.TimedOutError):(De.error("Unexpected error.",e),Ie._triggerError(new m.errors.PlayerFatalError("An unexpected error occurred.",e)))}a=o(),a.onCompletion(function(r){if(r)try{Ne=r,Le||(Le=p());var o=Le[0];o?n():(De.debug("Excluding rendition.",r.rendition),v.excludeRendition(r.rendition),Le=null,e())}catch(e){t(e)}else Ne?(De.error("There were no stream formats that were supported."),Ie._triggerError(new M.NotSupportedError)):(De.error("There were no streams available."),Ie._triggerError(new G.NoStreamsError))}),a.onError(t)}function n(){function e(e){if(!u&&!i&&(u=!0,De.debug("Player releasing control.",e),t.abort(e),!Ie.isDead()))if(e&&e.retryPlayer){var n=qe.getDelay();n>0?(De.debug("Waiting "+n+" ms."),Be=window.setTimeout(function(){return r()},n)):r()}else r()}var n=Le&&Le[0];if(!n)throw new Error("No player to build.");if(!Ne)throw new Error("No rendition.");var o=Ne.url,a=Ne.rendition,s=new m.Descriptor(o,a.maestroProtocol,a.maestroFormat,a.maestroSegmentFormat),u=!1;De.debug("Building player...");var l=void 0,c=void 0;try{c=n(s,Ne,e)}catch(e){l=e}void 0===c?(De.error("Exception occurred whilst building player.",l),e()):null===c?(De.debug("Player not supported for current descriptor."),e()):(Ce.set(c,Ne),je=c,De.debug("Built player."),je.isDead()?(De.debug("Player died during construction."),e()):(le.addPlayer(je),je.onChange.subscribe(function(t){var r=t.dead;r&&(De.debug("Player died."),e())})))}var i=!1,a=null;return e(),{result:m.helpers.deferred.buildDeferred().promise,abort:function(e){i=!0,De.info("Player job aborted.",e),Ue=null,a&&a.abort(),Le&&(e&&e.retryPlayer?De.debug("Player might be used again for current rendition."):(De.debug("Player will not be used again for current rendition."),Le.shift()),Ie.getPlayer()&&Ie.removePlayer(),je&&(je.kill(),je=null),Ne=null)}}}),t=e.run();return Ue=t}function o(){return H(function(){return new B(function(){var e=v.getUrl();De.debug("Retrieving a URL...");var t=e.whenComplete().then(function(e){return e?De.debug("Retrieved URL.",{rendition:e.rendition,bitrate:e.bitrate}):De.debug("No URL provided."),e&&te.indexOf(e.rendition)<0?(De.warn("Unknown rendition. Skipping...",e.rendition),{success:!1}):{result:e,success:!0}}).catch(function(e){if(e instanceof T.RequestError){var t=e.getStatusCode();if(null===t||0===t)return null===t?De.warn("Timed out when retrieving URL. Will retry."):De.warn("Network error when retrieving URL. Will retry."),{success:!1}}throw e!==m.helpers.abortableJob.abortedError&&De.error("Error retrieving URL.",e),e});return{result:t,abort:function(){return e.abort()}}})},Pe)}function p(){var e=[];return $&&y.indexOf($)>=0&&(De.debug("ChromecastPlayer found.",Q.version),xe?e.push(function(e){var t=new $(e,{name:Ae,castContext:xe,logger:ye});return Ie.providePlayer(t,{syncPosition:!1,syncVolume:!1},!1),t}):De.warn("Could not construct chromecast player because context not provided.")),Z&&y.indexOf(Z)>=0&&(De.debug("FlipperPlayer found.",J.version),e.push(function(e){var t=new Z(e,{name:Ae,logger:ye});return C.takeControlFlipperPlayer(Ie,t,De,Fe||void 0),t})),X&&y.indexOf(X)>=0&&(De.debug("HLSMSEPlayer found.",W.version),e.push(function(e,t,r){var n=new X(e,{name:Ae,playlistLoader:E.stringLoader,segmentLoader:E.arrayBufferLoader,keyLoader:E.arrayBufferLoader,logger:ye});return _(n,function(){return r()}),I.takeControlHLSMSEPlayer(W,Ie,n,Te,r,t.rendition,v,t.url,De),n})),Y&&y.indexOf(Y)>=0&&(De.debug("HTML5Player found.",K.version),e.push(function(e,t,r){var n=t.timeRetrieved;if(Te&&("hls"===e.getProtocol().name||void 0===n))return null;var o;if(Te){if(void 0===n)throw new Error("Expecting timeUrlRetrieved to be set.");o={urlExpires:!0,timeUrlRetrieved:n}}else o={urlExpires:!1};var i=new Y(e,{name:Ae,logger:ye});return _(i,function(){return r()}),k.takeControlHTML5Player(K,Ie,i,o,r,De),i})),e}function h(){Ue?(De.debug("Reloading stream URLs..."),De.debug("Aborting player job that is in progress."),Ue.abort(),Le=null,r()):De.debug("Reload requested, but not reloading as there is nothing to reload.")}function _(e,t){function r(){var t=e.getMediaElement();t&&t!==re&&(De.debug("Revoking audio element that was created internally because player is ready now."),e.revokeMediaElement())}function o(){var r=e.getMediaElement();if(r&&r!==re&&(De.debug("Revoking audio element that was created internally, even though player is not ready."),e.revokeMediaElement()),!e.getMediaElement()){ne&&!ne.isDead()&&(De.info("Revoking audio element from a player."),ne.isPlaying()&&De.warn("The audio element is being revoked from a player which is playing. Only one player should be playing at once."),ne.revokeMediaElement()),ne=e,De.info("Providing audio element to a different player.");var o=oe={};e.provideMediaElement(n()).catch(function(r){e.isDead()||oe!==o||(De.error("An unexpected error occurred when trying to provide the audio element to a player.",r),t())})}}e.isReady()?r():e.onReady.subscribe(r),Ie.onPlayIntent.subscribe(function(){e.isDead()||o()}),Ie.isPlaying()&&(e.isDead()||o())}function g(e){var t=Ce.get(e);if(!t)return null;var r=s(e)?"MaestroHTML5":a(e)?"MaestroHLSMSE":u(e)?"MaestroFlipper":l(e)?"MaestroChromecast":null;if(!r)throw new Error("Unknown player.");return{name:r,bitrate:t.bitrate,protocol:t.rendition.scProtocol,host:c(t.url),url:d(t.url),format:t.rendition.scFormat}}var y=e.playerClasses,v=e.streamUrlRetriever,L=e.duration,F=void 0===L?null:L,q=e.preloadingEnabled,ee=void 0!==q&&q,ce=e.pausedMaxBufferLength,de=void 0===ce?2e3:ce,fe=e.playingMaxBufferLength,pe=void 0===fe?9e4:fe,he=e.fadeOutDuration,_e=void 0===he?0:he,ge=e.logger,ye=void 0===ge?m.logger.noOpLogger:ge,ve=e.audioPerformanceReporter,me=e.audioReporter,Ee=e.audioCheckpointInterval,be=void 0===Ee?3e4:Ee,we=e.errorReporter,Se=e.urlProviderRetryDelayCalculator,Pe=void 0===Se?z():Se,Re=e.streamUrlsExpire,Te=void 0===Re||Re,xe=e.chromecastContext;if(!(v instanceof b.BaseStreamUrlRetriever))throw new Error("StreamUrlRetriever invalid.");if(null!==F&&("number"!=typeof F||F<0))throw new Error("duration invalid.");if("boolean"!=typeof ee)throw new Error("preloadingEnabled invalid.");if(null!==de&&("number"!=typeof de||de<0))throw new Error("pausedMaxBufferLength invalid.");if(null!==pe&&("number"!=typeof pe||pe<0))throw new Error("playingMaxBufferLength invalid.");if(null!==_e&&("number"!=typeof _e||_e<0))throw new Error("fadeOutDuration invalid.");if(null!==ye&&"function"!=typeof ye&&"object"!=typeof ye)throw new Error("logger invalid.");if(void 0!==me&&"function"!=typeof me)throw new Error("audioReporter invalid.");if(null!==be&&("number"!=typeof be||be<0))throw new Error("audioCheckpointInterval invalid.");if(void 0!==ve&&"function"!=typeof ve)throw new Error("audioPerformanceReporter invalid.");if(void 0!==we&&"function"!=typeof we)throw new Error("errorReporter invalid.");if(void 0!==Pe&&"function"!=typeof Pe)throw new Error("retryDelayCalculator invalid.");var Ae="SCAudio-"+ ++ie,Oe=v.getTrackId();null!==Oe&&(Ae+="-"+Oe);var Me=new N.LogCollector;ye=m.logger.cloneLogger(Me,ye);var De=m.logger.prefixLogger(ye,Ae),ke=f();De.info("Building player...",{ua:navigator.userAgent,logId:ke});var Ie=new R.Player({name:Ae+"-Proxy",logger:ye,mediaSessionEnabled:!0,pausedMaxBufferLength:de,playingMaxBufferLength:pe,preloadingEnabled:ee},h);ae.push(Ie),Ie.setVolume(se),Ie.setMuted(ue),_e>0&&Ie.addVolumeAutomator(w.buildFadeOut(_e));var Ce=new V.SCWeakMap,Le=null,je=null,Ne=null,Ue=null,Fe=null,Be=null,qe=new j.DecayingExponentialDelayCalculator;if(ve&&(Fe=new S.AudioPerformanceEventGenerator(Ie,ve,De,t)),me&&new U.AudioEventGenerator(Ie,me,be,De,t),we&&new P.ErrorEventGenerator(Ie,Me,ke,Oe,we,De,g,W||null,Te),Ie.onChange.subscribe(function(e){var t=e.dead,r=e.playing;if(t)De.info("Player killed."),ae.splice(ae.indexOf(Ie),1),Ue&&Ue.abort(),Be&&window.clearTimeout(Be);else if(r===!0){var o=y.some(function(e){return i(e)});o&&n()}}),null!==F&&(De.debug("Setting initial duration.",F),Ie.setInitialDuration(F)),ee)De.debug("Preloading is enabled, so performing retrieve immediately."),r();else{De.debug("Preloading is disabled, so deferring retrieve until either a play intent or preloading is enabled.");var He=function(){ze.remove(),Ge.remove(),De.debug("Preloading now enabled or received a play request. Peforming retrieve."),r()},ze=Ie.onPreloadingEnabled.subscribe(He),Ge=Ie.onPlayIntent.subscribe(He)}return Ie}Object.defineProperty(t,"__esModule",{value:!0});var m=r(0),E=r(94),b=r(13),w=r(12),S=r(73),P=r(78),R=r(14),T=r(16),x=r(26),A=r(6),O=r(29),M=r(11),D=r(28),k=r(76),I=r(25),C=r(75),L=r(15),j=r(77),N=r(80),U=r(72),F=r(74),B=m.helpers.abortableJob.AbortableJob,q=m.helpers.retry,H=q.retry,z=q.buildExponentialDelayCalculator,G=r(27),V=r(79),K=void 0;
@@ -1303,10 +427,10 @@ if(null===t)throw new Error("Expecting duration to exist.");var r=this._getTrueP
 	 */
 (function(){"use strict";function s(e){return"function"==typeof e||"object"==typeof e&&null!==e}function u(e){return"function"==typeof e}function l(e){return"object"==typeof e&&null!==e}function c(e){J=e}function d(e){Z=e}function f(){var t=e.nextTick,r=e.versions.node.match(/^(?:(\d+)\.)?(?:(\d+)\.)?(\*|\d+)$/);return Array.isArray(r)&&"0"===r[1]&&"10"===r[2]&&(t=o),function(){t(y)}}function p(){return function(){W(y)}}function h(){var e=0,t=new te(y),r=document.createTextNode("");return t.observe(r,{characterData:!0}),function(){r.data=e=++e%2}}function _(){var e=new MessageChannel;return e.port1.onmessage=y,function(){e.port2.postMessage(0)}}function g(){return function(){setTimeout(y,1)}}function y(){for(var e=0;e<X;e+=2){var t=oe[e],r=oe[e+1];t(r),oe[e]=void 0,oe[e+1]=void 0}X=0}function v(){try{var e=r(29);return W=e.runOnLoop||e.runOnContext,p()}catch(e){return g()}}function m(){}function E(){return new TypeError("You cannot resolve a promise with itself")}function b(){return new TypeError("A promises callback cannot return that same promise.")}function w(e){try{return e.then}catch(e){return ue.error=e,ue}}function S(e,t,r,n){try{e.call(t,r,n)}catch(e){return e}}function P(e,t,r){Z(function(e){var n=!1,o=S(r,t,function(r){n||(n=!0,t!==r?x(e,r):O(e,r))},function(t){n||(n=!0,M(e,t))},"Settle: "+(e._label||" unknown promise"));!n&&o&&(n=!0,M(e,o))},e)}function R(e,t){t._state===ae?O(e,t._result):t._state===se?M(e,t._result):D(t,void 0,function(t){x(e,t)},function(t){M(e,t)})}function T(e,t){if(t.constructor===e.constructor)R(e,t);else{var r=w(t);r===ue?M(e,ue.error):void 0===r?O(e,t):u(r)?P(e,t,r):O(e,t)}}function x(e,t){e===t?M(e,E()):s(t)?T(e,t):O(e,t)}function A(e){e._onerror&&e._onerror(e._result),k(e)}function O(e,t){e._state===ie&&(e._result=t,e._state=ae,0!==e._subscribers.length&&Z(k,e))}function M(e,t){e._state===ie&&(e._state=se,e._result=t,Z(A,e))}function D(e,t,r,n){var o=e._subscribers,i=o.length;e._onerror=null,o[i]=t,o[i+ae]=r,o[i+se]=n,0===i&&e._state&&Z(k,e)}function k(e){var t=e._subscribers,r=e._state;if(0!==t.length){for(var n,o,i=e._result,a=0;a<t.length;a+=3)n=t[a],o=t[a+r],n?L(r,n,o,i):o(i);e._subscribers.length=0}}function I(){this.error=null}function C(e,t){try{return e(t)}catch(e){return le.error=e,le}}function L(e,t,r,n){var o,i,a,s,l=u(r);if(l){if(o=C(r,n),o===le?(s=!0,i=o.error,o=null):a=!0,t===o)return void M(t,b())}else o=n,a=!0;t._state!==ie||(l&&a?x(t,o):s?M(t,i):e===ae?O(t,o):e===se&&M(t,o))}function j(e,t){try{t(function(t){x(e,t)},function(t){M(e,t)})}catch(t){M(e,t)}}function N(e,t){var r=this;r._instanceConstructor=e,r.promise=new e(m),r._validateInput(t)?(r._input=t,r.length=t.length,r._remaining=t.length,r._init(),0===r.length?O(r.promise,r._result):(r.length=r.length||0,r._enumerate(),0===r._remaining&&O(r.promise,r._result))):M(r.promise,r._validationError())}function U(e){return new ce(this,e).promise}function F(e){function t(e){x(o,e)}function r(e){M(o,e)}var n=this,o=new n(m);if(!Y(e))return M(o,new TypeError("You must pass an array to race.")),o;for(var i=e.length,a=0;o._state===ie&&a<i;a++)D(n.resolve(e[a]),void 0,t,r);return o}function B(e){var t=this;if(e&&"object"==typeof e&&e.constructor===t)return e;var r=new t(m);return x(r,e),r}function q(e){var t=this,r=new t(m);return M(r,e),r}function H(){throw new TypeError("You must pass a resolver function as the first argument to the promise constructor")}function z(){throw new TypeError("Failed to construct 'Promise': Please use the 'new' operator, this object constructor cannot be called as a function.")}function G(e){this._id=_e++,this._state=void 0,this._result=void 0,this._subscribers=[],m!==e&&(u(e)||H(),this instanceof G||z(),j(this,e))}function V(){var e;if("undefined"!=typeof i)e=i;else if("undefined"!=typeof self)e=self;else try{e=Function("return this")()}catch(e){throw new Error("polyfill failed because global object is unavailable in this environment")}var t=e.Promise;t&&"[object Promise]"===Object.prototype.toString.call(t.resolve())&&!t.cast||(e.Promise=ge)}var K;K=Array.isArray?Array.isArray:function(e){return"[object Array]"===Object.prototype.toString.call(e)};var W,J,Q,Y=K,X=0,Z=({}.toString,function(e,t){oe[X]=e,oe[X+1]=t,X+=2,2===X&&(J?J(y):Q())}),$="undefined"!=typeof window?window:void 0,ee=$||{},te=ee.MutationObserver||ee.WebKitMutationObserver,re="undefined"!=typeof e&&"[object process]"==={}.toString.call(e),ne="undefined"!=typeof Uint8ClampedArray&&"undefined"!=typeof importScripts&&"undefined"!=typeof MessageChannel,oe=new Array(1e3);Q=re?f():te?h():ne?_():void 0===$?v():g();var ie=void 0,ae=1,se=2,ue=new I,le=new I;N.prototype._validateInput=function(e){return Y(e)},N.prototype._validationError=function(){return new Error("Array Methods must be provided an Array")},N.prototype._init=function(){this._result=new Array(this.length)};var ce=N;N.prototype._enumerate=function(){for(var e=this,t=e.length,r=e.promise,n=e._input,o=0;r._state===ie&&o<t;o++)e._eachEntry(n[o],o)},N.prototype._eachEntry=function(e,t){var r=this,n=r._instanceConstructor;l(e)?e.constructor===n&&e._state!==ie?(e._onerror=null,r._settledAt(e._state,t,e._result)):r._willSettleAt(n.resolve(e),t):(r._remaining--,r._result[t]=e)},N.prototype._settledAt=function(e,t,r){var n=this,o=n.promise;o._state===ie&&(n._remaining--,e===se?M(o,r):n._result[t]=r),0===n._remaining&&O(o,n._result)},N.prototype._willSettleAt=function(e,t){var r=this;D(e,void 0,function(e){r._settledAt(ae,t,e)},function(e){r._settledAt(se,t,e)})};var de=U,fe=F,pe=B,he=q,_e=0,ge=G;G.all=de,G.race=fe,G.resolve=pe,G.reject=he,G._setScheduler=c,G._setAsap=d,G._asap=Z,G.prototype={constructor:G,then:function(e,t){var r=this,n=r._state;if(n===ae&&!e||n===se&&!t)return this;var o=new this.constructor(m),i=r._result;if(n){var a=arguments[n-1];Z(function(){L(n,o,a,i)})}else D(r,o,e,t);return o},catch:function(e){return this.then(null,e)}};var ye=V,ve={Promise:ge,polyfill:ye};r(23).amd?(n=function(){return ve}.call(t,r,t,a),!(void 0!==n&&(a.exports=n))):"undefined"!=typeof a&&a.exports?a.exports=ve:"undefined"!=typeof this&&(this.ES6Promise=ve),ye()}).call(this)}).call(t,r(6),r(25).setImmediate,function(){return this}(),r(24)(e))},function(e,t){"use strict";var r={oauth_token:void 0,baseURL:"https://api.soundcloud.com",connectURL:"//connect.soundcloud.com",client_id:void 0,redirect_uri:void 0};e.exports={get:function(e){return r[e]},set:function(e,t){t&&(r[e]=t)}}},function(e,t,r){(function(t){"use strict";var n=r(3),o=r(20),i=r(2).Promise,a=function(e,r,n,o){var a=void 0,s=new i(function(i){var s=t.FormData&&n instanceof FormData;a=new XMLHttpRequest,a.upload&&a.upload.addEventListener("progress",o),a.open(e,r,!0),s||a.setRequestHeader("Content-Type","application/x-www-form-urlencoded"),a.onreadystatechange=function(){4===a.readyState&&i({responseText:a.responseText,request:a})},a.send(n)});return s.request=a,s},s=function(e){var t=e.responseText,r=e.request,n=void 0,o=void 0;try{o=JSON.parse(t)}catch(e){}return o?o.errors&&(n={message:""},o.errors[0]&&o.errors[0].error_message&&(n={message:o.errors[0].error_message})):n=r?{message:"HTTP Error: "+r.status}:{message:"Unknown error"},n&&(n.status=r.status),{json:o,error:n}},u=function e(t,r,n,o){var i=a(t,r,n,o),u=i.then(function(t){var r=t.responseText,n=t.request,o=s({responseText:r,request:n});if(o.json&&"302 - Found"===o.json.status)return e("GET",o.json.location,null);if(200!==n.status&&o.error)throw o.error;return o.json});return u.request=i.request,u},l=function(e,t,r){Object.keys(t).forEach(function(n){r?e.append(n,t[n]):e[n]=t[n]})};e.exports={request:function(e,r){var i=arguments.length<=2||void 0===arguments[2]?{}:arguments[2],a=arguments.length<=3||void 0===arguments[3]?function(){}:arguments[3],s=n.get("oauth_token"),c=n.get("client_id"),d={},f=t.FormData&&i instanceof FormData,p=void 0,h=void 0;return d.format="json",s?d.oauth_token=s:d.client_id=c,l(i,d,f),"GET"!==e&&(p=f?i:o.encode(i),i={oauth_token:s}),r="/"!==r[0]?"/"+r:r,h=""+n.get("baseURL")+r+"?"+o.encode(i),u(e,h,p,a)},oEmbed:function(e){var t=arguments.length<=1||void 0===arguments[1]?{}:arguments[1],r=t.element;delete t.element,t.url=e;var n="https://soundcloud.com/oembed.json?"+o.encode(t);return u("GET",n,null).then(function(e){return r&&e.html&&(r.innerHTML=e.html),e})},upload:function(){var e=arguments.length<=0||void 0===arguments[0]?{}:arguments[0],t=e.asset_data||e.file,r=n.get("oauth_token")&&e.title&&t;if(!r)return new i(function(e,t){t({status:0,error_message:"oauth_token needs to be present and title and asset_data / file passed as parameters"})});var o=Object.keys(e),a=new FormData;return o.forEach(function(t){var r=e[t];"file"===t&&(t="asset_data",r=e.file),a.append("track["+t+"]",r)}),this.request("POST","/tracks",a,e.progress)},resolve:function(e){return this.request("GET","/resolve",{url:e,_status_code_map:{302:200}})}}}).call(t,function(){return this}())},function(e,t){"use strict";var r={};e.exports={get:function(e){return r[e]},set:function(e,t){r[e]=t}}},function(e,t){function r(){throw new Error("setTimeout has not been defined")}function n(){throw new Error("clearTimeout has not been defined")}function o(e){if(c===setTimeout)return setTimeout(e,0);if((c===r||!c)&&setTimeout)return c=setTimeout,setTimeout(e,0);try{return c(e,0)}catch(t){try{return c.call(null,e,0)}catch(t){return c.call(this,e,0)}}}function i(e){if(d===clearTimeout)return clearTimeout(e);if((d===n||!d)&&clearTimeout)return d=clearTimeout,clearTimeout(e);try{return d(e)}catch(t){try{return d.call(null,e)}catch(t){return d.call(this,e)}}}function a(){_&&p&&(_=!1,p.length?h=p.concat(h):g=-1,h.length&&s())}function s(){if(!_){var e=o(a);_=!0;for(var t=h.length;t;){for(p=h,h=[];++g<t;)p&&p[g].run();g=-1,t=h.length}p=null,_=!1,i(e)}}function u(e,t){this.fun=e,this.array=t}function l(){}var c,d,f=e.exports={};!function(){try{c="function"==typeof setTimeout?setTimeout:r}catch(e){c=r}try{d="function"==typeof clearTimeout?clearTimeout:n}catch(e){d=n}}();var p,h=[],_=!1,g=-1;f.nextTick=function(e){var t=new Array(arguments.length-1);if(arguments.length>1)for(var r=1;r<arguments.length;r++)t[r-1]=arguments[r];h.push(new u(e,t)),1!==h.length||_||o(s)},u.prototype.run=function(){this.fun.apply(null,this.array)},f.title="browser",f.browser=!0,f.env={},f.argv=[],f.version="",f.versions={},f.on=l,f.addListener=l,f.once=l,f.off=l,f.removeListener=l,f.removeAllListeners=l,f.emit=l,f.prependListener=l,f.prependOnceListener=l,f.listeners=function(e){return[]},f.binding=function(e){throw new Error("process.binding is not supported")},f.cwd=function(){return"/"},f.chdir=function(e){throw new Error("process.chdir is not supported")},f.umask=function(){return 0}},function(e,t,r){"use strict";var n=r(22);t.extract=function(e){return e.split("?")[1]||""},t.parse=function(e){return"string"!=typeof e?{}:(e=e.trim().replace(/^(\?|#|&)/,""),e?e.split("&").reduce(function(e,t){var r=t.replace(/\+/g," ").split("="),n=r.shift(),o=r.length>0?r.join("="):void 0;return n=decodeURIComponent(n),o=void 0===o?null:decodeURIComponent(o),e.hasOwnProperty(n)?Array.isArray(e[n])?e[n].push(o):e[n]=[e[n],o]:e[n]=o,e},{}):{})},t.stringify=function(e){return e?Object.keys(e).sort().map(function(t){var r=e[t];return Array.isArray(r)?r.sort().map(function(e){return n(t)+"="+n(e)}).join("&"):n(t)+"="+n(r)}).filter(function(e){return e.length>0}).join("&"):""}},function(e,t,r){"use strict";var n=r(7),o=r(5);e.exports={notifyDialog:function(e){var t=n.parse(e.search),r=n.parse(e.hash),i={oauth_token:t.access_token||r.access_token,dialog_id:t.state||r.state,error:t.error||r.error,error_description:t.error_description||r.error_description},a=o.get(i.dialog_id);a&&a.handleConnectResponse(i)}}},function(e,t,r){"use strict";var n=r(3),o=r(11),i=r(2).Promise,a=function(e){return n.set("oauth_token",e.oauth_token),e};e.exports=function(){var e=arguments.length<=0||void 0===arguments[0]?{}:arguments[0],t=n.get("oauth_token");if(t)return new i(function(e){e({oauth_token:t})});var r={client_id:e.client_id||n.get("client_id"),redirect_uri:e.redirect_uri||n.get("redirect_uri"),response_type:"code_and_token",scope:e.scope||"non-expiring",display:"popup"};if(!r.client_id||!r.redirect_uri)throw new Error("Options client_id and redirect_uri must be passed");var s=new o(r);return s.open().then(a)}},function(e,t,r){"use strict";var n=r(2).Promise;e.exports=function(){var e={};return e.promise=new n(function(t,r){e.resolve=t,e.reject=r}),e}},function(e,t,r){"use strict";function n(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}var o=function(){function e(e,t){for(var r=0;r<t.length;r++){var n=t[r];n.enumerable=n.enumerable||!1,n.configurable=!0,"value"in n&&(n.writable=!0),Object.defineProperty(e,n.key,n)}}return function(t,r,n){return r&&e(t.prototype,r),n&&e(t,n),t}}(),i=r(10),a=r(5),s=r(12),u=r(7),l="SoundCloud_Dialog",c=function(){return[l,Math.ceil(1e6*Math.random()).toString(16)].join("_")},d=function(e){return"https://soundcloud.com/connect?"+u.stringify(e)},f=function(){function e(){var t=arguments.length<=0||void 0===arguments[0]?{}:arguments[0];n(this,e),this.id=c(),this.options=t,this.options.state=this.id,this.width=420,this.height=670,this.deferred=i()}return o(e,[{key:"open",value:function(){var e=d(this.options);return this.popup=s.open(e,this.width,this.height),a.set(this.id,this),this.deferred.promise}},{key:"handleConnectResponse",value:function(e){var t=e.error;t?this.deferred.reject(e):this.deferred.resolve(e),this.popup.close()}}]),e}();e.exports=f},function(e,t){"use strict";e.exports={open:function(e,t,r){var n={},o=void 0;return n.location=1,n.width=t,n.height=r,n.left=window.screenX+(window.outerWidth-t)/2,n.top=window.screenY+(window.outerHeight-r)/2,n.toolbar="no",n.scrollbars="yes",o=Object.keys(n).map(function(e){return e+"="+n[e]}).join(", "),window.open(e,n.name,o)}}},function(e,t,r){"use strict";var n=r(19),o=r(1).MaestroCore,i=o.errors.PlayerFatalError,a=o.State,s=r(1).SCAudio.errors,u=s.GeoBlockedError,l=s.NoStreamsError,c=s.TimedOutError,d=s.NotSupportedError,f=1e3/60;e.exports=function(e){function t(){switch(e.getState()){case a.PLAYING:return"playing";case a.PAUSED:return e.isEnded()?"ended":"paused";case a.DEAD:return e.getFatalError()?"error":"dead";case a.LOADING:default:return"loading"}}function r(){function t(){window.clearTimeout(r),e.isPlaying()&&!e.isEnded()&&(r=window.setTimeout(t,f));var o=e.getPosition();o!==n&&(n=o,s.trigger("time",o))}var r=0,n=null;e.onChange.subscribe(function(e){var n=e.playing,o=e.seeking,i=e.dead;i?window.clearTimeout(r):void 0===n&&void 0===o||t()})}var o=!1;e.onStateChange.subscribe(function(){return s.trigger("state-change",t())}),e.onPlay.subscribe(function(){s.trigger(o?"play-resume":"play-start"),o=!0}),e.onPlayIntent.subscribe(function(){return s.trigger("play")}),e.onPlayRejection.subscribe(function(e){return s.trigger("play-rejection",e)}),e.onPauseIntent.subscribe(function(){return s.trigger("pause")}),e.onSeek.subscribe(function(){return s.trigger("seeked")}),e.onSeekRejection.subscribe(function(e){return s.trigger("seek-rejection",e)}),e.onLoadStart.subscribe(function(){return s.trigger("buffering_start")}),e.onLoadEnd.subscribe(function(){return s.trigger("buffering_end")}),e.onEnded.subscribe(function(){return s.trigger("finish")}),e.onError.subscribe(function(e){e instanceof u?s.trigger("geo_blocked"):e instanceof l?s.trigger("no_streams"):e instanceof c?s.trigger("no_connection"):e instanceof d?s.trigger("no_protocol"):e instanceof i&&s.trigger("audio_error")});var s={play:e.play.bind(e),pause:e.pause.bind(e),seek:e.seek.bind(e),getVolume:e.getVolume.bind(e),setVolume:e.setVolume.bind(e),currentTime:e.getPosition.bind(e),getDuration:e.getDuration.bind(e),isBuffering:e.isLoading.bind(e),isPlaying:e.isPlaying.bind(e),isActuallyPlaying:e.isActuallyPlaying.bind(e),isEnded:e.isEnded.bind(e),isDead:e.isDead.bind(e),kill:e.kill.bind(e),hasErrored:function(){return!!e.getFatalError()},getState:t};return n.mixin(s),r(),s}},function(e,t){(function(t){"use strict";var r=t.AudioContext||t.webkitAudioContext,n=null;e.exports=function(){return n?n:n=new r}}).call(t,function(){return this}())},function(e,t){(function(t){"use strict";var r=t.navigator.getUserMedia||t.navigator.webkitGetUserMedia||t.navigator.mozGetUserMedia;e.exports=function(e,n,o){r.call(t.navigator,e,n,o)}}).call(t,function(){return this}())},function(e,t,r){"use strict";function n(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}var o=function(){function e(e,t){for(var r=0;r<t.length;r++){var n=t[r];n.enumerable=n.enumerable||!1,n.configurable=!0,"value"in n&&(n.writable=!0),Object.defineProperty(e,n.key,n)}}return function(t,r,n){return r&&e(t.prototype,r),n&&e(t,n),t}}(),i=r(14),a=r(15),s=r(2).Promise,u=r(28),l=function(){var e=this,t=this.context;return new s(function(r,n){e.source?e.source instanceof AudioNode?r(e.source):n(new Error("source needs to be an instance of AudioNode")):a({audio:!0},function(n){e.stream=n,e.source=t.createMediaStreamSource(n),r(e.source)}.bind(e),n)})},c=function(){function e(){var t=arguments.length<=0||void 0===arguments[0]?{}:arguments[0];n(this,e),this.context=t.context||i(),this._recorder=null,this.source=t.source,this.stream=null}return o(e,[{key:"start",value:function(){var e=this;return l.call(this).then(function(t){return e._recorder=new u(t),e._recorder.record(),t})}},{key:"stop",value:function(){if(this._recorder&&this._recorder.stop(),this.stream)if(this.stream.stop)this.stream.stop();else if(this.stream.getTracks){var e=this.stream.getTracks()[0];e&&e.stop()}}},{key:"getBuffer",value:function(){var e=this;return new s(function(t,r){e._recorder?e._recorder.getBuffer(function(r){var n=e.context.sampleRate,o=e.context.createBuffer(2,r[0].length,n);o.getChannelData(0).set(r[0]),o.getChannelData(1).set(r[1]),t(o)}.bind(e)):r(new Error("Nothing has been recorded yet."))})}},{key:"getWAV",value:function(){var e=this;return new s(function(t,r){e._recorder?e._recorder.exportWAV(function(e){t(e)}):r(new Error("Nothing has been recorded yet."))})}},{key:"play",value:function(){var e=this;return this.getBuffer().then(function(t){var r=e.context.createBufferSource();return r.buffer=t,r.connect(e.context.destination),r.start(0),r})}},{key:"saveAs",value:function(e){return this.getWAV().then(function(t){u.forceDownload(t,e)})}},{key:"delete",value:function(){this._recorder&&(this._recorder.stop(),this._recorder.clear(),this._recorder=null),this.stream&&this.stream.stop()}}]),e}();e.exports=c},function(e,t,r){"use strict";var n=r(4),o=r(3),i=r(13),a=r(1).SCAudio,s=r(1).SCAudioPublicApiStreamURLRetriever.StreamUrlRetriever,u=r(1).MaestroHTML5Player.HTML5Player,l=r(1).MaestroHLSMSEPlayer.HLSMSEPlayer,c=r(1).MaestroLoaders.stringLoader,d=3e3;e.exports=function(e,t){var r=t?{secret_token:t}:{};return n.request("GET",e,r).then(function(e){function r(){var r=n+"/tracks/"+encodeURIComponent(e.id)+"/plays?client_id="+encodeURIComponent(f);t&&(r+="&secret_token="+encodeURIComponent(t));var o=new XMLHttpRequest;o.open("POST",r,!0),o.send()}var n=o.get("baseURL"),f=o.get("client_id"),p=o.get("oauth_token"),h=!1,_=new s({clientId:f,secretToken:t,trackId:e.id,requestAuthorization:p?"OAuth "+p:null,loader:c}),g=a.buildPlayer({playerClasses:[u,l],streamUrlRetriever:_,fadeOutDuration:"SNIP"===e.policy?d:0});return g.onPlay.subscribe(function(){h||(h=!0,r())}),g.onEnded.subscribe(function(){g.pause()}),g.onPlayIntent.subscribe(function(){g.isEnded()&&g.seek(0)}),i(g)})},e.exports.activateAudioElement=function(){a.activateAudioElement()}},function(e,t,r){!function(){function r(){return{keys:Object.keys||function(e){if("object"!=typeof e&&"function"!=typeof e||null===e)throw new TypeError("keys() called on a non-object");var t,r=[];for(t in e)e.hasOwnProperty(t)&&(r[r.length]=t);return r},uniqueId:function(e){var t=++s+"";return e?e+t:t},has:function(e,t){return i.call(e,t)},each:function(e,t,r){if(null!=e)if(o&&e.forEach===o)e.forEach(t,r);else if(e.length===+e.length)for(var n=0,i=e.length;n<i;n++)t.call(r,e[n],n,e);else for(var a in e)this.has(e,a)&&t.call(r,e[a],a,e)},once:function(e){var t,r=!1;return function(){return r?t:(r=!0,t=e.apply(this,arguments),e=null,t)}}}}var n,o=Array.prototype.forEach,i=Object.prototype.hasOwnProperty,a=Array.prototype.slice,s=0,u=r();n={on:function(e,t,r){if(!c(this,"on",e,[t,r])||!t)return this;this._events||(this._events={});var n=this._events[e]||(this._events[e]=[]);return n.push({callback:t,context:r,ctx:r||this}),this},once:function(e,t,r){if(!c(this,"once",e,[t,r])||!t)return this;var n=this,o=u.once(function(){n.off(e,o),t.apply(this,arguments)});return o._callback=t,this.on(e,o,r)},off:function(e,t,r){var n,o,i,a,s,l,d,f;if(!this._events||!c(this,"off",e,[t,r]))return this;if(!e&&!t&&!r)return this._events={},this;for(a=e?[e]:u.keys(this._events),s=0,l=a.length;s<l;s++)if(e=a[s],i=this._events[e]){if(this._events[e]=n=[],t||r)for(d=0,f=i.length;d<f;d++)o=i[d],(t&&t!==o.callback&&t!==o.callback._callback||r&&r!==o.context)&&n.push(o);n.length||delete this._events[e]}return this},trigger:function(e){if(!this._events)return this;var t=a.call(arguments,1);if(!c(this,"trigger",e,t))return this;var r=this._events[e],n=this._events.all;return r&&d(r,t),n&&d(n,arguments),this},stopListening:function(e,t,r){var n=this._listeners;if(!n)return this;var o=!t&&!r;"object"==typeof t&&(r=this),e&&((n={})[e._listenerId]=e);for(var i in n)n[i].off(t,r,this),o&&delete this._listeners[i];return this}};var l=/\s+/,c=function(e,t,r,n){if(!r)return!0;if("object"==typeof r){for(var o in r)e[t].apply(e,[o,r[o]].concat(n));return!1}if(l.test(r)){for(var i=r.split(l),a=0,s=i.length;a<s;a++)e[t].apply(e,[i[a]].concat(n));return!1}return!0},d=function(e,t){var r,n=-1,o=e.length,i=t[0],a=t[1],s=t[2];switch(t.length){case 0:for(;++n<o;)(r=e[n]).callback.call(r.ctx);return;case 1:for(;++n<o;)(r=e[n]).callback.call(r.ctx,i);return;case 2:for(;++n<o;)(r=e[n]).callback.call(r.ctx,i,a);return;case 3:for(;++n<o;)(r=e[n]).callback.call(r.ctx,i,a,s);return;default:for(;++n<o;)(r=e[n]).callback.apply(r.ctx,t)}},f={listenTo:"on",listenToOnce:"once"};u.each(f,function(e,t){n[t]=function(t,r,n){var o=this._listeners||(this._listeners={}),i=t._listenerId||(t._listenerId=u.uniqueId("l"));return o[i]=t,"object"==typeof r&&(n=this),t[e](r,n,this),this}}),n.bind=n.on,n.unbind=n.off,n.mixin=function(e){var t=["on","once","off","trigger","stopListening","listenTo","listenToOnce","bind","unbind"];return u.each(t,function(t){e[t]=this[t]},this),e},"undefined"!=typeof e&&e.exports&&(t=e.exports=n),t.BackboneEvents=n}(this)},function(e,t,r){e.exports=r(18)},function(e,t){e.exports={encode:function(e,t){function r(e){return e.filter(function(e){return"string"==typeof e&&e.length}).join("&")}function n(e){var t=Object.keys(e);return d?t.sort():t}function o(e,t){var o=":name[:prop]";return r(n(t).map(function(r){return a(o.replace(/:name/,e).replace(/:prop/,r),t[r])}))}function i(e,t){var n=":name[]";return r(t.map(function(t){return a(n.replace(/:name/,e),t)}))}function a(e,t){var r=/%20/g,n=encodeURIComponent,a=typeof t,s=null;return Array.isArray(t)?s=i(e,t):"string"===a?s=n(e)+"="+u(t):"number"===a?s=n(e)+"="+n(t).replace(r,"+"):"boolean"===a?s=n(e)+"="+t:"object"===a&&(null!==t?s=o(e,t):c||(s=n(e)+"=null")),s}function s(e){return"%"+("0"+e.charCodeAt(0).toString(16)).slice(-2).toUpperCase()}function u(e){return e.replace(/[^ !'()~\*]*/g,encodeURIComponent).replace(/ /g,"+").replace(/[!'()~\*]/g,s)}var l="object"==typeof t?t:{},c=l.ignorenull||!1,d=l.sorted||!1;return r(n(e).map(function(t){return a(t,e[t])}))}}},function(e,t,r){(function(e,t){!function(e,r){"use strict";function n(e){"function"!=typeof e&&(e=new Function(""+e));for(var t=new Array(arguments.length-1),r=0;r<t.length;r++)t[r]=arguments[r+1];var n={callback:e,args:t};return _[h]=n,p(h),h++}function o(e){delete _[e]}function i(e){var t=e.callback,n=e.args;switch(n.length){case 0:t();break;case 1:t(n[0]);break;case 2:t(n[0],n[1]);break;case 3:t(n[0],n[1],n[2]);break;default:t.apply(r,n)}}function a(e){if(g)setTimeout(a,0,e);else{var t=_[e];if(t){g=!0;try{i(t)}finally{o(e),g=!1}}}}function s(){p=function(e){t.nextTick(function(){a(e)})}}function u(){if(e.postMessage&&!e.importScripts){var t=!0,r=e.onmessage;return e.onmessage=function(){t=!1},e.postMessage("","*"),e.onmessage=r,t}}function l(){var t="setImmediate$"+Math.random()+"$",r=function(r){r.source===e&&"string"==typeof r.data&&0===r.data.indexOf(t)&&a(+r.data.slice(t.length))};e.addEventListener?e.addEventListener("message",r,!1):e.attachEvent("onmessage",r),p=function(r){e.postMessage(t+r,"*")}}function c(){var e=new MessageChannel;e.port1.onmessage=function(e){var t=e.data;a(t)},p=function(t){e.port2.postMessage(t)}}function d(){var e=y.documentElement;p=function(t){var r=y.createElement("script");r.onreadystatechange=function(){a(t),r.onreadystatechange=null,e.removeChild(r),r=null},e.appendChild(r)}}function f(){p=function(e){setTimeout(a,0,e)}}if(!e.setImmediate){var p,h=1,_={},g=!1,y=e.document,v=Object.getPrototypeOf&&Object.getPrototypeOf(e);v=v&&v.setTimeout?v:e,"[object process]"==={}.toString.call(e.process)?s():u()?l():e.MessageChannel?c():y&&"onreadystatechange"in y.createElement("script")?d():f(),v.setImmediate=n,v.clearImmediate=o}}("undefined"==typeof self?"undefined"==typeof e?this:e:self)}).call(t,function(){return this}(),r(6))},function(e,t){"use strict";e.exports=function(e){return encodeURIComponent(e).replace(/[!'()*]/g,function(e){return"%"+e.charCodeAt(0).toString(16).toUpperCase()})}},function(e,t){e.exports=function(){throw new Error("define cannot be used indirect")}},function(e,t){e.exports=function(e){return e.webpackPolyfill||(e.deprecate=function(){},e.paths=[],e.children=[],e.webpackPolyfill=1),e}},function(e,t,r){function n(e,t){this._id=e,this._clearFn=t}var o=Function.prototype.apply;t.setTimeout=function(){return new n(o.call(setTimeout,window,arguments),clearTimeout)},t.setInterval=function(){return new n(o.call(setInterval,window,arguments),clearInterval)},t.clearTimeout=t.clearInterval=function(e){e&&e.close()},n.prototype.unref=n.prototype.ref=function(){},n.prototype.close=function(){this._clearFn.call(window,this._id)},t.enroll=function(e,t){clearTimeout(e._idleTimeoutId),e._idleTimeout=t},t.unenroll=function(e){clearTimeout(e._idleTimeoutId),e._idleTimeout=-1},t._unrefActive=t.active=function(e){clearTimeout(e._idleTimeoutId);var t=e._idleTimeout;t>=0&&(e._idleTimeoutId=setTimeout(function(){e._onTimeout&&e._onTimeout()},t))},r(21),t.setImmediate=setImmediate,t.clearImmediate=clearImmediate},function(e,t){var r=window.URL||window.webkitURL;e.exports=function(e,t){try{try{var n;try{var o=window.BlobBuilder||window.WebKitBlobBuilder||window.MozBlobBuilder||window.MSBlobBuilder;n=new o,n.append(e),n=n.getBlob()}catch(t){n=new Blob([e])}return new Worker(r.createObjectURL(n))}catch(t){return new Worker("data:application/javascript,"+encodeURIComponent(e))}}catch(e){return new Worker(t)}}},function(e,t,r){e.exports=function(){return r(26)('!function(t){function n(r){if(e[r])return e[r].exports;var a=e[r]={exports:{},id:r,loaded:!1};return t[r].call(a.exports,a,a.exports,n),a.loaded=!0,a.exports}var e={};return n.m=t,n.c=e,n.p="",n(0)}([function(t,n){(function(t){function n(t){h=t.sampleRate,v=t.numChannels,s()}function e(t){for(var n=0;n<v;n++)p[n].push(t[n]);g+=t[0].length}function r(t){for(var n=[],e=0;e<v;e++)n.push(i(p[e],g));if(2===v)var r=f(n[0],n[1]);else var r=n[0];var a=l(r),o=new Blob([a],{type:t});this.postMessage(o)}function a(){for(var t=[],n=0;n<v;n++)t.push(i(p[n],g));this.postMessage(t)}function o(){g=0,p=[],s()}function s(){for(var t=0;t<v;t++)p[t]=[]}function i(t,n){for(var e=new Float32Array(n),r=0,a=0;a<t.length;a++)e.set(t[a],r),r+=t[a].length;return e}function f(t,n){for(var e=t.length+n.length,r=new Float32Array(e),a=0,o=0;a<e;)r[a++]=t[o],r[a++]=n[o],o++;return r}function c(t,n,e){for(var r=0;r<e.length;r++,n+=2){var a=Math.max(-1,Math.min(1,e[r]));t.setInt16(n,a<0?32768*a:32767*a,!0)}}function u(t,n,e){for(var r=0;r<e.length;r++)t.setUint8(n+r,e.charCodeAt(r))}function l(t){var n=new ArrayBuffer(44+2*t.length),e=new DataView(n);return u(e,0,"RIFF"),e.setUint32(4,36+2*t.length,!0),u(e,8,"WAVE"),u(e,12,"fmt "),e.setUint32(16,16,!0),e.setUint16(20,1,!0),e.setUint16(22,v,!0),e.setUint32(24,h,!0),e.setUint32(28,4*h,!0),e.setUint16(32,2*v,!0),e.setUint16(34,16,!0),u(e,36,"data"),e.setUint32(40,2*t.length,!0),c(e,44,t),e}var h,v,g=0,p=[];t.onmessage=function(t){switch(t.data.command){case"init":n(t.data.config);break;case"record":e(t.data.buffer);break;case"exportWAV":r(t.data.type);break;case"getBuffer":a();break;case"clear":o()}}}).call(n,function(){return this}())}]);\n//# sourceMappingURL=9f9aac32c9a7432b5555.worker.js.map',r.p+"9f9aac32c9a7432b5555.worker.js")}},function(e,t,r){var n=r(27),o=function(e,t){var r=t||{},o=r.bufferLen||4096,i=r.numChannels||2;this.context=e.context,this.node=(this.context.createScriptProcessor||this.context.createJavaScriptNode).call(this.context,o,i,i);var a=new n;a.postMessage({command:"init",config:{sampleRate:this.context.sampleRate,numChannels:i}});var s,u=!1;this.node.onaudioprocess=function(e){if(u){for(var t=[],r=0;r<i;r++)t.push(e.inputBuffer.getChannelData(r));a.postMessage({command:"record",buffer:t})}},this.configure=function(e){for(var t in e)e.hasOwnProperty(t)&&(r[t]=e[t])},this.record=function(){u=!0},this.stop=function(){u=!1},this.clear=function(){a.postMessage({command:"clear"})},this.getBuffer=function(e){s=e||r.callback,a.postMessage({command:"getBuffer"})},this.exportWAV=function(e,t){if(s=e||r.callback,t=t||r.type||"audio/wav",!s)throw new Error("Callback not set");a.postMessage({command:"exportWAV",type:t})},a.onmessage=function(e){var t=e.data;s(t)},e.connect(this.node),this.node.connect(this.context.destination)};o.forceDownload=function(e,t){var r=(window.URL||window.webkitURL).createObjectURL(e),n=window.document.createElement("a");n.href=r,n.download=t||"output.wav";var o=document.createEvent("Event");o.initEvent("click",!0,!0),n.dispatchEvent(o)},e.exports=o},function(e,t){}])});
 //# sourceMappingURL=sdk.js.map
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1).setImmediate, __webpack_require__(1).clearImmediate))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0).setImmediate, __webpack_require__(0).clearImmediate))
 
 /***/ }),
-/* 13 */
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global, process) {(function (global, undefined) {
@@ -1496,17 +620,207 @@ if(null===t)throw new Error("Expecting duration to exist.");var r=this._getTrueP
     attachTo.clearImmediate = clearImmediate;
 }(typeof self === "undefined" ? typeof global === "undefined" ? this : global : self));
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2), __webpack_require__(3)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1), __webpack_require__(6)))
 
 /***/ }),
-/* 14 */
+/* 6 */
+/***/ (function(module, exports) {
+
+// shim for using process in browser
+var process = module.exports = {};
+
+// cached from whatever global is present so that test runners that stub it
+// don't break things.  But we need to wrap it in a try catch in case it is
+// wrapped in strict mode code which doesn't define any globals.  It's inside a
+// function because try/catches deoptimize in certain engines.
+
+var cachedSetTimeout;
+var cachedClearTimeout;
+
+function defaultSetTimout() {
+    throw new Error('setTimeout has not been defined');
+}
+function defaultClearTimeout () {
+    throw new Error('clearTimeout has not been defined');
+}
+(function () {
+    try {
+        if (typeof setTimeout === 'function') {
+            cachedSetTimeout = setTimeout;
+        } else {
+            cachedSetTimeout = defaultSetTimout;
+        }
+    } catch (e) {
+        cachedSetTimeout = defaultSetTimout;
+    }
+    try {
+        if (typeof clearTimeout === 'function') {
+            cachedClearTimeout = clearTimeout;
+        } else {
+            cachedClearTimeout = defaultClearTimeout;
+        }
+    } catch (e) {
+        cachedClearTimeout = defaultClearTimeout;
+    }
+} ())
+function runTimeout(fun) {
+    if (cachedSetTimeout === setTimeout) {
+        //normal enviroments in sane situations
+        return setTimeout(fun, 0);
+    }
+    // if setTimeout wasn't available but was latter defined
+    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
+        cachedSetTimeout = setTimeout;
+        return setTimeout(fun, 0);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedSetTimeout(fun, 0);
+    } catch(e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
+            return cachedSetTimeout.call(null, fun, 0);
+        } catch(e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
+            return cachedSetTimeout.call(this, fun, 0);
+        }
+    }
+
+
+}
+function runClearTimeout(marker) {
+    if (cachedClearTimeout === clearTimeout) {
+        //normal enviroments in sane situations
+        return clearTimeout(marker);
+    }
+    // if clearTimeout wasn't available but was latter defined
+    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
+        cachedClearTimeout = clearTimeout;
+        return clearTimeout(marker);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedClearTimeout(marker);
+    } catch (e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
+            return cachedClearTimeout.call(null, marker);
+        } catch (e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
+            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
+            return cachedClearTimeout.call(this, marker);
+        }
+    }
+
+
+
+}
+var queue = [];
+var draining = false;
+var currentQueue;
+var queueIndex = -1;
+
+function cleanUpNextTick() {
+    if (!draining || !currentQueue) {
+        return;
+    }
+    draining = false;
+    if (currentQueue.length) {
+        queue = currentQueue.concat(queue);
+    } else {
+        queueIndex = -1;
+    }
+    if (queue.length) {
+        drainQueue();
+    }
+}
+
+function drainQueue() {
+    if (draining) {
+        return;
+    }
+    var timeout = runTimeout(cleanUpNextTick);
+    draining = true;
+
+    var len = queue.length;
+    while(len) {
+        currentQueue = queue;
+        queue = [];
+        while (++queueIndex < len) {
+            if (currentQueue) {
+                currentQueue[queueIndex].run();
+            }
+        }
+        queueIndex = -1;
+        len = queue.length;
+    }
+    currentQueue = null;
+    draining = false;
+    runClearTimeout(timeout);
+}
+
+process.nextTick = function (fun) {
+    var args = new Array(arguments.length - 1);
+    if (arguments.length > 1) {
+        for (var i = 1; i < arguments.length; i++) {
+            args[i - 1] = arguments[i];
+        }
+    }
+    queue.push(new Item(fun, args));
+    if (queue.length === 1 && !draining) {
+        runTimeout(drainQueue);
+    }
+};
+
+// v8 likes predictible objects
+function Item(fun, array) {
+    this.fun = fun;
+    this.array = array;
+}
+Item.prototype.run = function () {
+    this.fun.apply(null, this.array);
+};
+process.title = 'browser';
+process.browser = true;
+process.env = {};
+process.argv = [];
+process.version = ''; // empty string to avoid regexp issues
+process.versions = {};
+
+function noop() {}
+
+process.on = noop;
+process.addListener = noop;
+process.once = noop;
+process.off = noop;
+process.removeListener = noop;
+process.removeAllListeners = noop;
+process.emit = noop;
+process.prependListener = noop;
+process.prependOnceListener = noop;
+
+process.listeners = function (name) { return [] }
+
+process.binding = function (name) {
+    throw new Error('process.binding is not supported');
+};
+
+process.cwd = function () { return '/' };
+process.chdir = function (dir) {
+    throw new Error('process.chdir is not supported');
+};
+process.umask = function() { return 0; };
+
+
+/***/ }),
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 /* WEBPACK VAR INJECTION */(function(global) {
 
-var Promise = global.Promise || __webpack_require__(15)
-var widget = __webpack_require__(16)
+var Promise = global.Promise || __webpack_require__(8)
+var widget = __webpack_require__(9)
 
 var WIDGET_METHODS = Object.freeze([
   'play',
@@ -1598,10 +912,10 @@ function convertCamelCaseParamsToSnakeCase (options) {
 
 module.exports = SoundcloudWidget
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1)))
 
 /***/ }),
-/* 15 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1848,902 +1162,14 @@ Promise._unhandledRejectionFn = function _unhandledRejectionFn(err) {
 
 module.exports = Promise;
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1).setImmediate))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0).setImmediate))
 
 /***/ }),
-/* 16 */
+/* 9 */
 /***/ (function(module, exports) {
 
 var SC=SC||{};SC.Widget=function(n){function t(r){if(e[r])return e[r].exports;var o=e[r]={exports:{},id:r,loaded:!1};return n[r].call(o.exports,o,o.exports,t),o.loaded=!0,o.exports}var e={};return t.m=n,t.c=e,t.p="",t(0)}([function(n,t,e){function r(n){return!!(""===n||n&&n.charCodeAt&&n.substr)}function o(n){return!!(n&&n.constructor&&n.call&&n.apply)}function i(n){return!(!n||1!==n.nodeType||"IFRAME"!==n.nodeName.toUpperCase())}function a(n){var t,e=!1;for(t in b)if(b.hasOwnProperty(t)&&b[t]===n){e=!0;break}return e}function s(n){var t,e,r;for(t=0,e=I.length;t<e&&(r=n(I[t]),r!==!1);t++);}function u(n){var t,e,r,o="";for("//"===n.substr(0,2)&&(n=window.location.protocol+n),r=n.split("/"),t=0,e=r.length;t<e&&t<3;t++)o+=r[t],t<2&&(o+="/");return o}function c(n){return n.contentWindow?n.contentWindow:n.contentDocument&&"parentWindow"in n.contentDocument?n.contentDocument.parentWindow:null}function l(n){var t,e=[];for(t in n)n.hasOwnProperty(t)&&e.push(n[t]);return e}function d(n,t,e){e.callbacks[n]=e.callbacks[n]||[],e.callbacks[n].push(t)}function E(n,t){var e,r=!0;return t.callbacks[n]=[],s(function(t){if(e=t.callbacks[n]||[],e.length)return r=!1,!1}),r}function f(n,t,e){var r,o,i=c(e);return!!i.postMessage&&(r=e.getAttribute("src").split("?")[0],o=JSON.stringify({method:n,value:t}),"//"===r.substr(0,2)&&(r=window.location.protocol+r),r=r.replace(/http:\/\/(w|wt).soundcloud.com/,"https://$1.soundcloud.com"),void i.postMessage(o,r))}function p(n){var t;return s(function(e){if(e.instance===n)return t=e,!1}),t}function h(n){var t;return s(function(e){if(c(e.element)===n)return t=e,!1}),t}function v(n,t){return function(e){var r=o(e),i=p(this),a=!r&&t?e:null,s=r&&!t?e:null;return s&&d(n,s,i),f(n,a,i.element),this}}function S(n,t,e){var r,o,i;for(r=0,o=t.length;r<o;r++)i=t[r],n[i]=v(i,e)}function R(n,t,e){return n+"?url="+t+"&"+g(e)}function g(n){var t,e,r=[];for(t in n)n.hasOwnProperty(t)&&(e=n[t],r.push(t+"="+("start_track"===t?parseInt(e,10):e?"true":"false")));return r.join("&")}function m(n,t,e){var r,o,i=n.callbacks[t]||[];for(r=0,o=i.length;r<o;r++)i[r].apply(n.instance,e);(a(t)||t===L.READY)&&(n.callbacks[t]=[])}function w(n){var t,e,r,o,i;try{e=JSON.parse(n.data)}catch(a){return!1}return t=h(n.source),r=e.method,o=e.value,(!t||A(n.origin)===A(t.domain))&&(t?(r===L.READY&&(t.isReady=!0,m(t,C),E(C,t)),r!==L.PLAY||t.playEventFired||(t.playEventFired=!0),r!==L.PLAY_PROGRESS||t.playEventFired||(t.playEventFired=!0,m(t,L.PLAY,[o])),i=[],void 0!==o&&i.push(o),void m(t,r,i)):(r===L.READY&&T.push(n.source),!1))}function A(n){return n.replace(Y,"")}var _,y,O,D=e(1),b=e(2),P=e(3),L=D.api,N=D.bridge,T=[],I=[],C="__LATE_BINDING__",k="http://wt.soundcloud.dev:9200/",Y=/^http(?:s?)/;window.addEventListener?window.addEventListener("message",w,!1):window.attachEvent("onmessage",w),n.exports=O=function(n,t,e){if(r(n)&&(n=document.getElementById(n)),!i(n))throw new Error("SC.Widget function should be given either iframe element or a string specifying id attribute of iframe element.");t&&(e=e||{},n.src=R(k,t,e));var o,a,s=h(c(n));return s&&s.instance?s.instance:(o=T.indexOf(c(n))>-1,a=new _(n),I.push(new y(a,n,o)),a)},O.Events=L,window.SC=window.SC||{},window.SC.Widget=O,y=function(n,t,e){this.instance=n,this.element=t,this.domain=u(t.getAttribute("src")),this.isReady=!!e,this.callbacks={}},_=function(){},_.prototype={constructor:_,load:function(n,t){if(n){t=t||{};var e=this,r=p(this),o=r.element,i=o.src,a=i.substr(0,i.indexOf("?"));r.isReady=!1,r.playEventFired=!1,o.onload=function(){e.bind(L.READY,function(){var n,e=r.callbacks;for(n in e)e.hasOwnProperty(n)&&n!==L.READY&&f(N.ADD_LISTENER,n,r.element);t.callback&&t.callback()})},o.src=R(a,n,t)}},bind:function(n,t){var e=this,r=p(this);return r&&r.element&&(n===L.READY&&r.isReady?setTimeout(t,1):r.isReady?(d(n,t,r),f(N.ADD_LISTENER,n,r.element)):d(C,function(){e.bind(n,t)},r)),this},unbind:function(n){var t,e=p(this);e&&e.element&&(t=E(n,e),n!==L.READY&&t&&f(N.REMOVE_LISTENER,n,e.element))}},S(_.prototype,l(b)),S(_.prototype,l(P),!0)},function(n,t){t.api={LOAD_PROGRESS:"loadProgress",PLAY_PROGRESS:"playProgress",PLAY:"play",PAUSE:"pause",FINISH:"finish",SEEK:"seek",READY:"ready",OPEN_SHARE_PANEL:"sharePanelOpened",CLICK_DOWNLOAD:"downloadClicked",CLICK_BUY:"buyClicked",ERROR:"error"},t.bridge={REMOVE_LISTENER:"removeEventListener",ADD_LISTENER:"addEventListener"}},function(n,t){n.exports={GET_VOLUME:"getVolume",GET_DURATION:"getDuration",GET_POSITION:"getPosition",GET_SOUNDS:"getSounds",GET_CURRENT_SOUND:"getCurrentSound",GET_CURRENT_SOUND_INDEX:"getCurrentSoundIndex",IS_PAUSED:"isPaused"}},function(n,t){n.exports={PLAY:"play",PAUSE:"pause",TOGGLE:"toggle",SEEK_TO:"seekTo",SET_VOLUME:"setVolume",NEXT:"next",PREV:"prev",SKIP:"skip"}}]);
 module.exports = SC.Widget
-
-/***/ }),
-/* 17 */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = __webpack_require__(18);
-
-/***/ }),
-/* 18 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var utils = __webpack_require__(0);
-var bind = __webpack_require__(5);
-var Axios = __webpack_require__(20);
-var defaults = __webpack_require__(4);
-
-/**
- * Create an instance of Axios
- *
- * @param {Object} defaultConfig The default config for the instance
- * @return {Axios} A new instance of Axios
- */
-function createInstance(defaultConfig) {
-  var context = new Axios(defaultConfig);
-  var instance = bind(Axios.prototype.request, context);
-
-  // Copy axios.prototype to instance
-  utils.extend(instance, Axios.prototype, context);
-
-  // Copy context to instance
-  utils.extend(instance, context);
-
-  return instance;
-}
-
-// Create the default instance to be exported
-var axios = createInstance(defaults);
-
-// Expose Axios class to allow class inheritance
-axios.Axios = Axios;
-
-// Factory for creating new instances
-axios.create = function create(instanceConfig) {
-  return createInstance(utils.merge(defaults, instanceConfig));
-};
-
-// Expose Cancel & CancelToken
-axios.Cancel = __webpack_require__(9);
-axios.CancelToken = __webpack_require__(34);
-axios.isCancel = __webpack_require__(8);
-
-// Expose all/spread
-axios.all = function all(promises) {
-  return Promise.all(promises);
-};
-axios.spread = __webpack_require__(35);
-
-module.exports = axios;
-
-// Allow use of default import syntax in TypeScript
-module.exports.default = axios;
-
-
-/***/ }),
-/* 19 */
-/***/ (function(module, exports) {
-
-/*!
- * Determine if an object is a Buffer
- *
- * @author   Feross Aboukhadijeh <https://feross.org>
- * @license  MIT
- */
-
-// The _isBuffer check is for Safari 5-7 support, because it's missing
-// Object.prototype.constructor. Remove this eventually
-module.exports = function (obj) {
-  return obj != null && (isBuffer(obj) || isSlowBuffer(obj) || !!obj._isBuffer)
-}
-
-function isBuffer (obj) {
-  return !!obj.constructor && typeof obj.constructor.isBuffer === 'function' && obj.constructor.isBuffer(obj)
-}
-
-// For Node v0.10 support. Remove this eventually.
-function isSlowBuffer (obj) {
-  return typeof obj.readFloatLE === 'function' && typeof obj.slice === 'function' && isBuffer(obj.slice(0, 0))
-}
-
-
-/***/ }),
-/* 20 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var defaults = __webpack_require__(4);
-var utils = __webpack_require__(0);
-var InterceptorManager = __webpack_require__(29);
-var dispatchRequest = __webpack_require__(30);
-
-/**
- * Create a new instance of Axios
- *
- * @param {Object} instanceConfig The default config for the instance
- */
-function Axios(instanceConfig) {
-  this.defaults = instanceConfig;
-  this.interceptors = {
-    request: new InterceptorManager(),
-    response: new InterceptorManager()
-  };
-}
-
-/**
- * Dispatch a request
- *
- * @param {Object} config The config specific for this request (merged with this.defaults)
- */
-Axios.prototype.request = function request(config) {
-  /*eslint no-param-reassign:0*/
-  // Allow for axios('example/url'[, config]) a la fetch API
-  if (typeof config === 'string') {
-    config = utils.merge({
-      url: arguments[0]
-    }, arguments[1]);
-  }
-
-  config = utils.merge(defaults, {method: 'get'}, this.defaults, config);
-  config.method = config.method.toLowerCase();
-
-  // Hook up interceptors middleware
-  var chain = [dispatchRequest, undefined];
-  var promise = Promise.resolve(config);
-
-  this.interceptors.request.forEach(function unshiftRequestInterceptors(interceptor) {
-    chain.unshift(interceptor.fulfilled, interceptor.rejected);
-  });
-
-  this.interceptors.response.forEach(function pushResponseInterceptors(interceptor) {
-    chain.push(interceptor.fulfilled, interceptor.rejected);
-  });
-
-  while (chain.length) {
-    promise = promise.then(chain.shift(), chain.shift());
-  }
-
-  return promise;
-};
-
-// Provide aliases for supported request methods
-utils.forEach(['delete', 'get', 'head', 'options'], function forEachMethodNoData(method) {
-  /*eslint func-names:0*/
-  Axios.prototype[method] = function(url, config) {
-    return this.request(utils.merge(config || {}, {
-      method: method,
-      url: url
-    }));
-  };
-});
-
-utils.forEach(['post', 'put', 'patch'], function forEachMethodWithData(method) {
-  /*eslint func-names:0*/
-  Axios.prototype[method] = function(url, data, config) {
-    return this.request(utils.merge(config || {}, {
-      method: method,
-      url: url,
-      data: data
-    }));
-  };
-});
-
-module.exports = Axios;
-
-
-/***/ }),
-/* 21 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var utils = __webpack_require__(0);
-
-module.exports = function normalizeHeaderName(headers, normalizedName) {
-  utils.forEach(headers, function processHeader(value, name) {
-    if (name !== normalizedName && name.toUpperCase() === normalizedName.toUpperCase()) {
-      headers[normalizedName] = value;
-      delete headers[name];
-    }
-  });
-};
-
-
-/***/ }),
-/* 22 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var createError = __webpack_require__(7);
-
-/**
- * Resolve or reject a Promise based on response status.
- *
- * @param {Function} resolve A function that resolves the promise.
- * @param {Function} reject A function that rejects the promise.
- * @param {object} response The response.
- */
-module.exports = function settle(resolve, reject, response) {
-  var validateStatus = response.config.validateStatus;
-  // Note: status is not exposed by XDomainRequest
-  if (!response.status || !validateStatus || validateStatus(response.status)) {
-    resolve(response);
-  } else {
-    reject(createError(
-      'Request failed with status code ' + response.status,
-      response.config,
-      null,
-      response.request,
-      response
-    ));
-  }
-};
-
-
-/***/ }),
-/* 23 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-/**
- * Update an Error with the specified config, error code, and response.
- *
- * @param {Error} error The error to update.
- * @param {Object} config The config.
- * @param {string} [code] The error code (for example, 'ECONNABORTED').
- * @param {Object} [request] The request.
- * @param {Object} [response] The response.
- * @returns {Error} The error.
- */
-module.exports = function enhanceError(error, config, code, request, response) {
-  error.config = config;
-  if (code) {
-    error.code = code;
-  }
-  error.request = request;
-  error.response = response;
-  return error;
-};
-
-
-/***/ }),
-/* 24 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var utils = __webpack_require__(0);
-
-function encode(val) {
-  return encodeURIComponent(val).
-    replace(/%40/gi, '@').
-    replace(/%3A/gi, ':').
-    replace(/%24/g, '$').
-    replace(/%2C/gi, ',').
-    replace(/%20/g, '+').
-    replace(/%5B/gi, '[').
-    replace(/%5D/gi, ']');
-}
-
-/**
- * Build a URL by appending params to the end
- *
- * @param {string} url The base of the url (e.g., http://www.google.com)
- * @param {object} [params] The params to be appended
- * @returns {string} The formatted url
- */
-module.exports = function buildURL(url, params, paramsSerializer) {
-  /*eslint no-param-reassign:0*/
-  if (!params) {
-    return url;
-  }
-
-  var serializedParams;
-  if (paramsSerializer) {
-    serializedParams = paramsSerializer(params);
-  } else if (utils.isURLSearchParams(params)) {
-    serializedParams = params.toString();
-  } else {
-    var parts = [];
-
-    utils.forEach(params, function serialize(val, key) {
-      if (val === null || typeof val === 'undefined') {
-        return;
-      }
-
-      if (utils.isArray(val)) {
-        key = key + '[]';
-      } else {
-        val = [val];
-      }
-
-      utils.forEach(val, function parseValue(v) {
-        if (utils.isDate(v)) {
-          v = v.toISOString();
-        } else if (utils.isObject(v)) {
-          v = JSON.stringify(v);
-        }
-        parts.push(encode(key) + '=' + encode(v));
-      });
-    });
-
-    serializedParams = parts.join('&');
-  }
-
-  if (serializedParams) {
-    url += (url.indexOf('?') === -1 ? '?' : '&') + serializedParams;
-  }
-
-  return url;
-};
-
-
-/***/ }),
-/* 25 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var utils = __webpack_require__(0);
-
-// Headers whose duplicates are ignored by node
-// c.f. https://nodejs.org/api/http.html#http_message_headers
-var ignoreDuplicateOf = [
-  'age', 'authorization', 'content-length', 'content-type', 'etag',
-  'expires', 'from', 'host', 'if-modified-since', 'if-unmodified-since',
-  'last-modified', 'location', 'max-forwards', 'proxy-authorization',
-  'referer', 'retry-after', 'user-agent'
-];
-
-/**
- * Parse headers into an object
- *
- * ```
- * Date: Wed, 27 Aug 2014 08:58:49 GMT
- * Content-Type: application/json
- * Connection: keep-alive
- * Transfer-Encoding: chunked
- * ```
- *
- * @param {String} headers Headers needing to be parsed
- * @returns {Object} Headers parsed into an object
- */
-module.exports = function parseHeaders(headers) {
-  var parsed = {};
-  var key;
-  var val;
-  var i;
-
-  if (!headers) { return parsed; }
-
-  utils.forEach(headers.split('\n'), function parser(line) {
-    i = line.indexOf(':');
-    key = utils.trim(line.substr(0, i)).toLowerCase();
-    val = utils.trim(line.substr(i + 1));
-
-    if (key) {
-      if (parsed[key] && ignoreDuplicateOf.indexOf(key) >= 0) {
-        return;
-      }
-      if (key === 'set-cookie') {
-        parsed[key] = (parsed[key] ? parsed[key] : []).concat([val]);
-      } else {
-        parsed[key] = parsed[key] ? parsed[key] + ', ' + val : val;
-      }
-    }
-  });
-
-  return parsed;
-};
-
-
-/***/ }),
-/* 26 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var utils = __webpack_require__(0);
-
-module.exports = (
-  utils.isStandardBrowserEnv() ?
-
-  // Standard browser envs have full support of the APIs needed to test
-  // whether the request URL is of the same origin as current location.
-  (function standardBrowserEnv() {
-    var msie = /(msie|trident)/i.test(navigator.userAgent);
-    var urlParsingNode = document.createElement('a');
-    var originURL;
-
-    /**
-    * Parse a URL to discover it's components
-    *
-    * @param {String} url The URL to be parsed
-    * @returns {Object}
-    */
-    function resolveURL(url) {
-      var href = url;
-
-      if (msie) {
-        // IE needs attribute set twice to normalize properties
-        urlParsingNode.setAttribute('href', href);
-        href = urlParsingNode.href;
-      }
-
-      urlParsingNode.setAttribute('href', href);
-
-      // urlParsingNode provides the UrlUtils interface - http://url.spec.whatwg.org/#urlutils
-      return {
-        href: urlParsingNode.href,
-        protocol: urlParsingNode.protocol ? urlParsingNode.protocol.replace(/:$/, '') : '',
-        host: urlParsingNode.host,
-        search: urlParsingNode.search ? urlParsingNode.search.replace(/^\?/, '') : '',
-        hash: urlParsingNode.hash ? urlParsingNode.hash.replace(/^#/, '') : '',
-        hostname: urlParsingNode.hostname,
-        port: urlParsingNode.port,
-        pathname: (urlParsingNode.pathname.charAt(0) === '/') ?
-                  urlParsingNode.pathname :
-                  '/' + urlParsingNode.pathname
-      };
-    }
-
-    originURL = resolveURL(window.location.href);
-
-    /**
-    * Determine if a URL shares the same origin as the current location
-    *
-    * @param {String} requestURL The URL to test
-    * @returns {boolean} True if URL shares the same origin, otherwise false
-    */
-    return function isURLSameOrigin(requestURL) {
-      var parsed = (utils.isString(requestURL)) ? resolveURL(requestURL) : requestURL;
-      return (parsed.protocol === originURL.protocol &&
-            parsed.host === originURL.host);
-    };
-  })() :
-
-  // Non standard browser envs (web workers, react-native) lack needed support.
-  (function nonStandardBrowserEnv() {
-    return function isURLSameOrigin() {
-      return true;
-    };
-  })()
-);
-
-
-/***/ }),
-/* 27 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-// btoa polyfill for IE<10 courtesy https://github.com/davidchambers/Base64.js
-
-var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
-
-function E() {
-  this.message = 'String contains an invalid character';
-}
-E.prototype = new Error;
-E.prototype.code = 5;
-E.prototype.name = 'InvalidCharacterError';
-
-function btoa(input) {
-  var str = String(input);
-  var output = '';
-  for (
-    // initialize result and counter
-    var block, charCode, idx = 0, map = chars;
-    // if the next str index does not exist:
-    //   change the mapping table to "="
-    //   check if d has no fractional digits
-    str.charAt(idx | 0) || (map = '=', idx % 1);
-    // "8 - idx % 1 * 8" generates the sequence 2, 4, 6, 8
-    output += map.charAt(63 & block >> 8 - idx % 1 * 8)
-  ) {
-    charCode = str.charCodeAt(idx += 3 / 4);
-    if (charCode > 0xFF) {
-      throw new E();
-    }
-    block = block << 8 | charCode;
-  }
-  return output;
-}
-
-module.exports = btoa;
-
-
-/***/ }),
-/* 28 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var utils = __webpack_require__(0);
-
-module.exports = (
-  utils.isStandardBrowserEnv() ?
-
-  // Standard browser envs support document.cookie
-  (function standardBrowserEnv() {
-    return {
-      write: function write(name, value, expires, path, domain, secure) {
-        var cookie = [];
-        cookie.push(name + '=' + encodeURIComponent(value));
-
-        if (utils.isNumber(expires)) {
-          cookie.push('expires=' + new Date(expires).toGMTString());
-        }
-
-        if (utils.isString(path)) {
-          cookie.push('path=' + path);
-        }
-
-        if (utils.isString(domain)) {
-          cookie.push('domain=' + domain);
-        }
-
-        if (secure === true) {
-          cookie.push('secure');
-        }
-
-        document.cookie = cookie.join('; ');
-      },
-
-      read: function read(name) {
-        var match = document.cookie.match(new RegExp('(^|;\\s*)(' + name + ')=([^;]*)'));
-        return (match ? decodeURIComponent(match[3]) : null);
-      },
-
-      remove: function remove(name) {
-        this.write(name, '', Date.now() - 86400000);
-      }
-    };
-  })() :
-
-  // Non standard browser env (web workers, react-native) lack needed support.
-  (function nonStandardBrowserEnv() {
-    return {
-      write: function write() {},
-      read: function read() { return null; },
-      remove: function remove() {}
-    };
-  })()
-);
-
-
-/***/ }),
-/* 29 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var utils = __webpack_require__(0);
-
-function InterceptorManager() {
-  this.handlers = [];
-}
-
-/**
- * Add a new interceptor to the stack
- *
- * @param {Function} fulfilled The function to handle `then` for a `Promise`
- * @param {Function} rejected The function to handle `reject` for a `Promise`
- *
- * @return {Number} An ID used to remove interceptor later
- */
-InterceptorManager.prototype.use = function use(fulfilled, rejected) {
-  this.handlers.push({
-    fulfilled: fulfilled,
-    rejected: rejected
-  });
-  return this.handlers.length - 1;
-};
-
-/**
- * Remove an interceptor from the stack
- *
- * @param {Number} id The ID that was returned by `use`
- */
-InterceptorManager.prototype.eject = function eject(id) {
-  if (this.handlers[id]) {
-    this.handlers[id] = null;
-  }
-};
-
-/**
- * Iterate over all the registered interceptors
- *
- * This method is particularly useful for skipping over any
- * interceptors that may have become `null` calling `eject`.
- *
- * @param {Function} fn The function to call for each interceptor
- */
-InterceptorManager.prototype.forEach = function forEach(fn) {
-  utils.forEach(this.handlers, function forEachHandler(h) {
-    if (h !== null) {
-      fn(h);
-    }
-  });
-};
-
-module.exports = InterceptorManager;
-
-
-/***/ }),
-/* 30 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var utils = __webpack_require__(0);
-var transformData = __webpack_require__(31);
-var isCancel = __webpack_require__(8);
-var defaults = __webpack_require__(4);
-var isAbsoluteURL = __webpack_require__(32);
-var combineURLs = __webpack_require__(33);
-
-/**
- * Throws a `Cancel` if cancellation has been requested.
- */
-function throwIfCancellationRequested(config) {
-  if (config.cancelToken) {
-    config.cancelToken.throwIfRequested();
-  }
-}
-
-/**
- * Dispatch a request to the server using the configured adapter.
- *
- * @param {object} config The config that is to be used for the request
- * @returns {Promise} The Promise to be fulfilled
- */
-module.exports = function dispatchRequest(config) {
-  throwIfCancellationRequested(config);
-
-  // Support baseURL config
-  if (config.baseURL && !isAbsoluteURL(config.url)) {
-    config.url = combineURLs(config.baseURL, config.url);
-  }
-
-  // Ensure headers exist
-  config.headers = config.headers || {};
-
-  // Transform request data
-  config.data = transformData(
-    config.data,
-    config.headers,
-    config.transformRequest
-  );
-
-  // Flatten headers
-  config.headers = utils.merge(
-    config.headers.common || {},
-    config.headers[config.method] || {},
-    config.headers || {}
-  );
-
-  utils.forEach(
-    ['delete', 'get', 'head', 'post', 'put', 'patch', 'common'],
-    function cleanHeaderConfig(method) {
-      delete config.headers[method];
-    }
-  );
-
-  var adapter = config.adapter || defaults.adapter;
-
-  return adapter(config).then(function onAdapterResolution(response) {
-    throwIfCancellationRequested(config);
-
-    // Transform response data
-    response.data = transformData(
-      response.data,
-      response.headers,
-      config.transformResponse
-    );
-
-    return response;
-  }, function onAdapterRejection(reason) {
-    if (!isCancel(reason)) {
-      throwIfCancellationRequested(config);
-
-      // Transform response data
-      if (reason && reason.response) {
-        reason.response.data = transformData(
-          reason.response.data,
-          reason.response.headers,
-          config.transformResponse
-        );
-      }
-    }
-
-    return Promise.reject(reason);
-  });
-};
-
-
-/***/ }),
-/* 31 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var utils = __webpack_require__(0);
-
-/**
- * Transform the data for a request or a response
- *
- * @param {Object|String} data The data to be transformed
- * @param {Array} headers The headers for the request or response
- * @param {Array|Function} fns A single function or Array of functions
- * @returns {*} The resulting transformed data
- */
-module.exports = function transformData(data, headers, fns) {
-  /*eslint no-param-reassign:0*/
-  utils.forEach(fns, function transform(fn) {
-    data = fn(data, headers);
-  });
-
-  return data;
-};
-
-
-/***/ }),
-/* 32 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-/**
- * Determines whether the specified URL is absolute
- *
- * @param {string} url The URL to test
- * @returns {boolean} True if the specified URL is absolute, otherwise false
- */
-module.exports = function isAbsoluteURL(url) {
-  // A URL is considered absolute if it begins with "<scheme>://" or "//" (protocol-relative URL).
-  // RFC 3986 defines scheme name as a sequence of characters beginning with a letter and followed
-  // by any combination of letters, digits, plus, period, or hyphen.
-  return /^([a-z][a-z\d\+\-\.]*:)?\/\//i.test(url);
-};
-
-
-/***/ }),
-/* 33 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-/**
- * Creates a new URL by combining the specified URLs
- *
- * @param {string} baseURL The base URL
- * @param {string} relativeURL The relative URL
- * @returns {string} The combined URL
- */
-module.exports = function combineURLs(baseURL, relativeURL) {
-  return relativeURL
-    ? baseURL.replace(/\/+$/, '') + '/' + relativeURL.replace(/^\/+/, '')
-    : baseURL;
-};
-
-
-/***/ }),
-/* 34 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var Cancel = __webpack_require__(9);
-
-/**
- * A `CancelToken` is an object that can be used to request cancellation of an operation.
- *
- * @class
- * @param {Function} executor The executor function.
- */
-function CancelToken(executor) {
-  if (typeof executor !== 'function') {
-    throw new TypeError('executor must be a function.');
-  }
-
-  var resolvePromise;
-  this.promise = new Promise(function promiseExecutor(resolve) {
-    resolvePromise = resolve;
-  });
-
-  var token = this;
-  executor(function cancel(message) {
-    if (token.reason) {
-      // Cancellation has already been requested
-      return;
-    }
-
-    token.reason = new Cancel(message);
-    resolvePromise(token.reason);
-  });
-}
-
-/**
- * Throws a `Cancel` if cancellation has been requested.
- */
-CancelToken.prototype.throwIfRequested = function throwIfRequested() {
-  if (this.reason) {
-    throw this.reason;
-  }
-};
-
-/**
- * Returns an object that contains a new `CancelToken` and a function that, when called,
- * cancels the `CancelToken`.
- */
-CancelToken.source = function source() {
-  var cancel;
-  var token = new CancelToken(function executor(c) {
-    cancel = c;
-  });
-  return {
-    token: token,
-    cancel: cancel
-  };
-};
-
-module.exports = CancelToken;
-
-
-/***/ }),
-/* 35 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-/**
- * Syntactic sugar for invoking a function and expanding an array for arguments.
- *
- * Common use case would be to use `Function.prototype.apply`.
- *
- *  ```js
- *  function f(x, y, z) {}
- *  var args = [1, 2, 3];
- *  f.apply(null, args);
- *  ```
- *
- * With `spread` this example can be re-written.
- *
- *  ```js
- *  spread(function(x, y, z) {})([1, 2, 3]);
- *  ```
- *
- * @param {Function} callback
- * @returns {Function}
- */
-module.exports = function spread(callback) {
-  return function wrap(arr) {
-    return callback.apply(null, arr);
-  };
-};
-
 
 /***/ })
 /******/ ]);

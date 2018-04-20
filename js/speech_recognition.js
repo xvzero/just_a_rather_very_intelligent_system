@@ -21,12 +21,11 @@ recognition.addEventListener('result', e => {
     p.textContent = transcript;
 
     if (e.results[0].isFinal) {
-
       if ((/(jarvis)(?!.*((don\'t)|(stop))).*(search for)/i).test(transcript)) {
         searchSoundCloud(transcript.match(/(for)(.*)/i)[2]);
       }
 
-      if ((/(jarvis)(?!.*((don\'t)|(stop))).*(play)/i).test(transcript)) {
+      if ((/(jarvis).*(play)/i).test(transcript)) {
         playSong(transcript.match(/(play)(.*)/i)[2]);
       }
 
@@ -58,20 +57,16 @@ recognition.addEventListener('result', e => {
         seekSong(transcript.match(/\d+/)[0]);
       }
 
-      if ((/(jarvis)(?!.*(don\'t)).*(rewind).*(\d+).(seconds)/i).test(transcript)) {
-        seekSong(-1 * transcript.match(/\d+/)[0]);
-      }
-
-      if ((/((jarvis)(?!.*(don\'t)).*(skip|(go to)).*(start|beginning))|(jarvis).*(replay)/i).test(transcript)) {
+      if ((/((jarvis)(?!.*(don\'t)).*(skip|(go)).*(start|beginning))|(jarvis).*(replay)/i).test(transcript)) {
         seekSong('begin');
       }
 
-      if ((/((jarvis)(?!.*(don\'t)).*(skip|(go to)).*(end))|(jarvis).*(stop)/i).test(transcript)) {
+      if ((/((jarvis)(?!.*(don\'t)).*(skip|(go)).*(end))|(jarvis).*(stop)/i).test(transcript)) {
         seekSong('end');
       }
 
       if ((/(jarvis)(?!.*(don\'t)).*((go back)|rewind).*(\d+).(seconds)/i).test(transcript)) {
-        seekSong(transcript.match(/\d+/)[0]);
+        seekSong(-1 * transcript.match(/\d+/)[0]);
       }
     }
 });
@@ -88,18 +83,14 @@ recognition.start();
 const SC = require('soundcloud');
 const SoundcloudWidget = require('soundcloud-widget');
 
-const axios = require('axios');
-const apiKey = 'AIzaSyBY9vqgOQZCQqgnK57pCXdFKR0YPCk9zFc';
-
-// const cx = '017515603852271078757:yjhxuxng8z0';
-const cx = '017515603852271078757:mnwqv4gxmce';
-
 const clientId = 'oFtM3fjLWICzaDucukME93LEYf0KIXKM';
 const appVersion = 1523891119;
 SC.initialize({
   client_id: clientId
 });
 
+
+const searchContainer = document.querySelector('.search-container');
 let widget = new SC.Widget(document.querySelector('.soundcloud-player'));
 let currentVolume = 100;
 let options = {
@@ -121,18 +112,6 @@ function searchSoundCloud(userInput) {
   }).then(function(tracks) {
     showTracks(tracks);
   });
-
-  // const url = `https://www.googleapis.com/customsearch/v1?key=${apiKey}&cx=${cx}&q=${userInput}`;
-  // fetch(url).then(function(response) {
-  //   return response.json();
-  // })
-  // .then(function(myJson) {
-  //   if (myJson.collection.length > 0)
-  //     // playSong(myJson.items[0].formattedUrl);
-  //     console.log(myJson.collection[0].formattedUrl);
-  //   else
-  //     console.log('no song was found');
-  // });
 }
 
 function playSong(userInput) {
@@ -189,6 +168,7 @@ function seekSong(time) {
   } else {
     widget.getPosition(position => {
       let currentTime = position + (time * 1000);
+      console.log(currentTime);
       widget.getDuration(duration => {
         if (currentTime >= 0 && currentTime <= duration)
           widget.seekTo(currentTime);
@@ -196,9 +176,6 @@ function seekSong(time) {
     });
   }
 }
-
-
-const searchContainer = document.querySelector('.search-container');
 
 function showTracks(tracks){
   for(let i = 0; i < tracks.length; i++){
@@ -227,3 +204,23 @@ function showTracks(tracks){
     searchContainer.appendChild(trackContainer);
   }
 }
+
+// Google search engine API
+
+// const axios = require('axios');
+// const apiKey = 'AIzaSyBY9vqgOQZCQqgnK57pCXdFKR0YPCk9zFc';
+//
+// // const cx = '017515603852271078757:yjhxuxng8z0';
+// const cx = '017515603852271078757:mnwqv4gxmce';
+//
+// const url = `https://www.googleapis.com/customsearch/v1?key=${apiKey}&cx=${cx}&q=${userInput}`;
+// fetch(url).then(function(response) {
+//   return response.json();
+// })
+// .then(function(myJson) {
+//   if (myJson.collection.length > 0)
+//     // playSong(myJson.items[0].formattedUrl);
+//     console.log(myJson.collection[0].formattedUrl);
+//   else
+//     console.log('no song was found');
+// });
