@@ -5,7 +5,7 @@ const path = require('path');
 const fetch = require('node-fetch');
 const PORT = 3000;
 
-app.use(express.static('public'));
+app.use(express.static('./'));
 
 
 app.get('/', (req, res) => {
